@@ -1,0 +1,77 @@
+{% if transfers %}
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Files</th>
+                <th scope="col">Size</th>
+                <th scope="col">Downloads</th>
+                <th scope="col">Created</th>
+                <th scope="col">Expires</th>
+                <th scope="col">
+                    <span class="visually-hidden">Actions</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transfer in transfers %}
+                <tr class="{% if transfer.is_expired %}is-expired{% endif %}{% if transfer.status == 'pending' %}is-pending{% endif %}">
+                    <td>
+                        {% if transfer.status == "ready" %}
+                            <a href="{{ url_for('transfers.view', transfer_id=transfer.id) }}"
+                               target="_blank"
+                               class="transfer-id">
+                                {{ transfer.id }}
+                                <i class="fa-solid fa-arrow-up-right-from-square fa-xs"
+                                   aria-hidden="true"></i>
+                            </a>
+                        {% else %}
+                            <span class="transfer-id transfer-id--pending">{{ transfer.id }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ transfer.files | length }}
+                        {% if transfer.recipient_email %}
+                            <i class="fa-solid fa-envelope fa-xs"
+                               data-tooltip="{{ transfer.recipient_email }}"
+                               aria-label="Sent to {{ transfer.recipient_email }}"></i>
+                        {% endif %}
+                    </td>
+                    <td>{{ transfer.total_size | filesize }}</td>
+                    <td>{{ transfer.download_count }}</td>
+                    <td>
+                        <time datetime="{{ transfer.created_at.isoformat() }}" data-live>
+                            {{ transfer.created_at | timeago }}
+                        </time>
+                    </td>
+                    <td>
+                        {% if transfer.expires_at %}
+                            {% if transfer.is_expired %}
+                                <span class="badge badge--expired">Expired</span>
+                            {% else %}
+                                {{ transfer.expires_at | strftime }}
+                            {% endif %}
+                        {% elif transfer.status == "pending" %}
+                            <span class="badge badge--pending">Pending</span>
+                        {% else %}
+                            <span class="muted">Never</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn--danger btn--sm"
+                                hx-delete="{{ url_for('admin.delete_transfer', transfer_id=transfer.id) }}"
+                                hx-confirm="Delete this transfer and all its files?"
+                                hx-target="closest tr"
+                                hx-swap="outerHTML swap:300ms">
+                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="empty-notice">No transfers yet.</p>
+{% endif %}

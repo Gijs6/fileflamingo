@@ -1,0 +1,37 @@
+{% extends "skeleton.jinja" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block body_class %}pg-site{% endblock %}
+
+{% block body_content %}
+    <header class="site-header">
+        <a href="{{ url_for('transfers.index') }}" class="site-header__brand">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            FileFlamingo
+        </a>
+    </header>
+
+    <main class="site-main">
+        <section class="flow-card">
+            <header class="flow-card__header">
+                <p class="error-code" aria-hidden="true">{{ code }}</p>
+                <h1>{{ title }}</h1>
+            </header>
+            <div class="flow-card__body">
+                {% if code == 404 %}
+                    <p>This page or transfer does not exist.</p>
+                {% elif code == 410 %}
+                    <p>This transfer has expired and its files have been removed.</p>
+                {% elif code == 413 %}
+                    <p>The uploaded file exceeds the maximum allowed size.</p>
+                {% else %}
+                    <p>Something went wrong.</p>
+                {% endif %}
+                <a href="{{ url_for('transfers.index') }}" class="btn">
+                    <i class="fa-solid fa-house" aria-hidden="true"></i>
+                    Go home
+                </a>
+            </div>
+        </section>
+    </main>
+{% endblock %}

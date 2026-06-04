@@ -1,0 +1,123 @@
+{% extends "skeleton.jinja" %}
+
+{% block title %}Ready to share{% endblock %}
+{% block body_class %}pg-site{% endblock %}
+
+{% block body_content %}
+    <header class="site-header">
+        <a href="{{ url_for('transfers.index') }}" class="site-header__brand">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            FileFlamingo
+        </a>
+    </header>
+
+    <main class="site-main">
+        <section class="flow-card flow-card--success">
+            <header class="flow-card__header">
+                <h1>Ready to share</h1>
+                <p>
+                    {% if transfer.recipient_email %}
+                        Link sent to <strong>{{ transfer.recipient_email }}</strong>.
+                    {% else %}
+                        Copy the link below and share it with anyone.
+                    {% endif %}
+                </p>
+            </header>
+
+            <nav class="steps" aria-label="Upload progress">
+                <ol class="steps__list">
+                    <li class="steps__item steps__item--done">
+                        <i class="fa-solid fa-check steps__check" aria-hidden="true"></i>
+                        Upload
+                    </li>
+                    <li class="steps__item steps__item--done">
+                        <i class="fa-solid fa-check steps__check" aria-hidden="true"></i>
+                        Message
+                    </li>
+                    <li class="steps__item steps__item--done">
+                        <i class="fa-solid fa-check steps__check" aria-hidden="true"></i>
+                        Options
+                    </li>
+                    <li class="steps__item steps__item--done">
+                        <i class="fa-solid fa-check steps__check" aria-hidden="true"></i>
+                        Done
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="flow-card__body">
+                <div class="link-box">
+                    <input type="text"
+                           class="link-box__url"
+                           id="link-url"
+                           value="{{ download_url }}"
+                           readonly
+                           aria-label="Shareable download link" />
+                    <button type="button" class="link-box__copy btn" id="copy-btn">
+                        <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                        Copy link
+                    </button>
+                </div>
+
+                <dl class="transfer-meta">
+                    <dt>Files</dt>
+                    <dd>
+                        {{ transfer.files | length }}
+                    </dd>
+                    <dt>Size</dt>
+                    <dd>
+                        {{ transfer.total_size | filesize }}
+                    </dd>
+                    <dt>Expires</dt>
+                    <dd>
+                        {% if transfer.expires_at %}
+                            {{ transfer.expires_at | strftime }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </dd>
+                </dl>
+
+                <a href="{{ url_for('transfers.index') }}" class="btn btn--ghost">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    Share more files
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (function() {
+            const btn = document.getElementById('copy-btn');
+            const urlInput = document.getElementById('link-url');
+            if (!btn || !urlInput) return;
+
+            function copy() {
+                const text = urlInput.value;
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(onCopied).catch(fallback);
+                } else {
+                    fallback();
+                }
+            }
+
+            function fallback() {
+                urlInput.select();
+                urlInput.setSelectionRange(0, 99999);
+                try {
+                    document.execCommand('copy');
+                } catch (_) {}
+                onCopied();
+            }
+
+            function onCopied() {
+                btn.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Copied!';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="fa-solid fa-copy" aria-hidden="true"></i> Copy link';
+                }, 2500);
+            }
+
+            btn.addEventListener('click', copy);
+        })();
+    </script>
+{% endblock %}

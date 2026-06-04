@@ -1,0 +1,4 @@
+name: fileflamingo
+image: gijs6/fileflamingo
+registry: ghcr.io
+host: dec

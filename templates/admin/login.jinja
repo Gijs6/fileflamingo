@@ -1,0 +1,36 @@
+{% extends "skeleton.jinja" %}
+
+{% block title %}Admin login{% endblock %}
+{% block body_class %}pg-auth{% endblock %}
+
+{% block body_content %}
+    <main class="auth-main">
+        <article class="auth-card">
+            <header class="auth-card__header">
+                <p class="auth-card__brand">
+                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                    FileFlamingo
+                </p>
+                <h1 class="auth-card__title">Admin</h1>
+            </header>
+
+            <form method="post"
+                  action="{{ url_for('admin.do_login') }}"
+                  class="auth-card__form">
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <input type="password"
+                           name="password"
+                           id="password"
+                           required
+                           autofocus
+                           autocomplete="current-password" />
+                </div>
+                <button type="submit" class="btn auth-card__submit">
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                    Sign in
+                </button>
+            </form>
+        </article>
+    </main>
+{% endblock %}

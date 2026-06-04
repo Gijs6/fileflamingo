@@ -1,0 +1,67 @@
+{% extends "skeleton.jinja" %}
+
+{% block title %}Options{% endblock %}
+{% block body_class %}pg-site{% endblock %}
+
+{% block body_content %}
+    <header class="site-header">
+        <a href="{{ url_for('transfers.index') }}" class="site-header__brand">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            FileFlamingo
+        </a>
+    </header>
+
+    <main class="site-main">
+        <section class="flow-card">
+            <header class="flow-card__header">
+                <h1>Options</h1>
+                <p>Choose how long the link stays active.</p>
+            </header>
+
+            <nav class="steps" aria-label="Upload progress">
+                <ol class="steps__list">
+                    <li class="steps__item steps__item--done">
+                        <i class="fa-solid fa-check steps__check" aria-hidden="true"></i>
+                        Upload
+                    </li>
+                    <li class="steps__item steps__item--done">
+                        <i class="fa-solid fa-check steps__check" aria-hidden="true"></i>
+                        Message
+                    </li>
+                    <li class="steps__item steps__item--active" aria-current="step">Options</li>
+                    <li class="steps__item">Done</li>
+                </ol>
+            </nav>
+
+            <form class="flow-card__body"
+                  method="post"
+                  action="{{ url_for('transfers.configure', transfer_id=transfer.id) }}"
+                  hx-patch="{{ url_for('transfers.configure', transfer_id=transfer.id) }}"
+                  hx-boost="false">
+                <input type="hidden" name="_method" value="PATCH" />
+
+                <div class="form-field">
+                    <label for="expiry">Link expires after</label>
+                    <select name="expiry" id="expiry">
+                        <option value="1">1 day</option>
+                        <option value="7" selected>7 days</option>
+                        <option value="30">30 days</option>
+                        <option value="0">Never</option>
+                    </select>
+                </div>
+
+                <footer class="flow-card__actions">
+                    <a href="{{ url_for('transfers.message', transfer_id=transfer.id) }}"
+                       class="btn btn--ghost">
+                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                        Back
+                    </a>
+                    <button type="submit" class="btn">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                        Create link
+                    </button>
+                </footer>
+            </form>
+        </section>
+    </main>
+{% endblock %}

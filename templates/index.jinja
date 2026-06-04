@@ -1,0 +1,184 @@
+{% extends "skeleton.jinja" %}
+
+{% block title %}Share files{% endblock %}
+{% block body_class %}pg-site{% endblock %}
+
+{% block body_content %}
+    <header class="site-header">
+        <a href="{{ url_for('transfers.index') }}" class="site-header__brand">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            FileFlamingo
+        </a>
+    </header>
+
+    <main class="site-main">
+        <section class="flow-card">
+            <header class="flow-card__header">
+                <h1>Share files</h1>
+                <p>Upload files and get a link to share with anyone.</p>
+            </header>
+
+            <nav class="steps" aria-label="Upload progress">
+                <ol class="steps__list">
+                    <li class="steps__item steps__item--active" aria-current="step">Upload</li>
+                    <li class="steps__item">Message</li>
+                    <li class="steps__item">Options</li>
+                    <li class="steps__item">Done</li>
+                </ol>
+            </nav>
+
+            <form class="flow-card__body"
+                  method="post"
+                  action="{{ url_for('transfers.create') }}"
+                  enctype="multipart/form-data"
+                  hx-post="{{ url_for('transfers.create') }}"
+                  hx-encoding="multipart/form-data"
+                  hx-disabled-elt="#submit-btn"
+                  hx-boost="false">
+                <fieldset class="flow-card__fieldset">
+                    <legend class="visually-hidden">Select files to upload</legend>
+                    <label class="dropzone" id="dropzone">
+                        <input type="file"
+                               name="files[]"
+                               id="files"
+                               multiple
+                               class="dropzone__input" />
+                        <span class="dropzone__prompt">
+                            <i class="fa-solid fa-cloud-arrow-up dropzone__icon" aria-hidden="true"></i>
+                            <span class="dropzone__text">Drop files here or <strong>browse</strong></span>
+                        </span>
+                        <span class="dropzone__summary" id="dropzone-summary" hidden>
+                            <i class="fa-solid fa-circle-check dropzone__summary-icon"
+                               aria-hidden="true"></i>
+                            <span id="dropzone-summary-label"></span>
+                            <span class="dropzone__summary-hint">Click to add more</span>
+                        </span>
+                    </label>
+                    <ol class="file-list" id="file-list" aria-live="polite">
+                    </ol>
+                </fieldset>
+
+                <div class="upload-progress" id="upload-progress" hidden>
+                    <div class="upload-progress__track">
+                        <div class="upload-progress__fill" id="upload-progress-fill"></div>
+                    </div>
+                    <p class="upload-progress__label" id="upload-progress-label">Uploading…</p>
+                </div>
+
+                <footer class="flow-card__actions">
+                    <button type="submit" class="btn" id="submit-btn" disabled>
+                        Continue
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </footer>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        (function() {
+            const dropzone = document.getElementById('dropzone');
+            const input = document.getElementById('files');
+            const list = document.getElementById('file-list');
+            const btn = document.getElementById('submit-btn');
+            const summary = document.getElementById('dropzone-summary');
+            const summaryLabel = document.getElementById('dropzone-summary-label');
+
+            let files = [];
+
+            function fmt(b) {
+                if (b < 1024) return b + ' B';
+                if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+                if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB';
+                return (b / 1073741824).toFixed(1) + ' GB';
+            }
+
+            function syncInput() {
+                const dt = new DataTransfer();
+                files.forEach(function(f) {
+                    dt.items.add(f);
+                });
+                input.files = dt.files;
+            }
+
+            function addFiles(incoming) {
+                Array.from(incoming).forEach(function(f) {
+                    if (!files.some(function(e) {
+                            return e.name === f.name && e.size === f.size;
+                        })) {
+                        files.push(f);
+                    }
+                });
+                syncInput();
+                render();
+            }
+
+            function render() {
+                var hasFiles = files.length > 0;
+
+                list.innerHTML = '';
+                files.forEach(function(f) {
+                    var li = document.createElement('li');
+                    li.className = 'file-list__item';
+                    li.innerHTML = '<i class="fa-solid fa-file file-list__icon" aria-hidden="true"></i>' +
+                        '<span class="file-list__name">' + f.name + '</span>' +
+                        '<span class="file-list__size">' + fmt(f.size) + '</span>';
+                    list.appendChild(li);
+                });
+
+                btn.disabled = !hasFiles;
+                dropzone.classList.toggle('dropzone--has-files', hasFiles);
+
+                if (hasFiles) {
+                    summaryLabel.textContent = files.length === 1 ? '1 file' : files.length + ' files';
+                    summary.hidden = false;
+                } else {
+                    summary.hidden = true;
+                }
+            }
+
+            input.addEventListener('change', function() {
+                addFiles(input.files);
+            });
+
+            dropzone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropzone.classList.add('dropzone--dragover');
+            });
+            dropzone.addEventListener('dragleave', function(e) {
+                if (!dropzone.contains(e.relatedTarget)) {
+                    dropzone.classList.remove('dropzone--dragover');
+                }
+            });
+            dropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropzone.classList.remove('dropzone--dragover');
+                addFiles(e.dataTransfer.files);
+            });
+
+            var form = btn.closest('form');
+            var progressEl = document.getElementById('upload-progress');
+            var progressFill = document.getElementById('upload-progress-fill');
+            var progressLabel = document.getElementById('upload-progress-label');
+
+            form.addEventListener('htmx:beforeRequest', function() {
+                progressFill.style.width = '0%';
+                progressLabel.textContent = 'Uploading…';
+                progressEl.hidden = false;
+            });
+
+            form.addEventListener('htmx:beforeSend', function(e) {
+                e.detail.xhr.upload.addEventListener('progress', function(ev) {
+                    if (!ev.lengthComputable) return;
+                    var pct = Math.round((ev.loaded / ev.total) * 100);
+                    progressFill.style.width = pct + '%';
+                    progressLabel.textContent = pct < 100 ? pct + '%' : 'Processing…';
+                });
+            });
+
+            form.addEventListener('htmx:afterRequest', function() {
+                progressEl.hidden = true;
+            });
+        })();
+    </script>
+{% endblock %}

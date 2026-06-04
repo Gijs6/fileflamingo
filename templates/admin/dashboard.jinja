@@ -1,0 +1,37 @@
+{% extends "base.jinja" %}
+
+{% block title %}Transfers{% endblock %}
+
+{% block content %}
+    <header class="page-hero">
+        <h1>Transfers</h1>
+    </header>
+
+    <section class="stat-row" aria-label="Summary statistics">
+        <article class="stat-card">
+            <p class="stat-card__value">{{ transfers | length }}</p>
+            <p class="stat-card__label">Transfers</p>
+        </article>
+        <article class="stat-card">
+            <p class="stat-card__value">{{ total_files }}</p>
+            <p class="stat-card__label">Files</p>
+        </article>
+        <article class="stat-card">
+            <p class="stat-card__value">{{ total_size | filesize }}</p>
+            <p class="stat-card__label">Storage</p>
+        </article>
+        <article class="stat-card">
+            <p class="stat-card__value">{{ transfers | selectattr("is_expired") | list | length }}</p>
+            <p class="stat-card__label">Expired</p>
+        </article>
+    </section>
+
+    <section class="admin-card"
+             id="transfers-table"
+             hx-get="{{ url_for('admin.transfers_table') }}"
+             hx-trigger="every 15s"
+             hx-swap="innerHTML">
+        {% include "admin/transfers_table.jinja" %}
+
+    </section>
+{% endblock %}

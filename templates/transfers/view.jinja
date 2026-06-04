@@ -1,0 +1,89 @@
+{% extends "skeleton.jinja" %}
+
+{% block title %}Download files{% endblock %}
+{% block body_class %}pg-view{% endblock %}
+
+{% block body_content %}
+    <header class="view-header">
+        <a href="{{ url_for('transfers.index') }}" class="view-header__brand">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            FileFlamingo
+        </a>
+    </header>
+
+    <main class="view-main">
+        {% if transfer.is_expired %}
+            <article class="view-card view-card--expired">
+                <p class="view-card__expired-icon" aria-hidden="true">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </p>
+                <h1>Transfer expired</h1>
+                <p>The files are no longer available.</p>
+                <a href="{{ url_for('transfers.index') }}" class="btn">
+                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                    Share your own files
+                </a>
+            </article>
+        {% else %}
+            <article class="view-card">
+                <header class="view-card__header">
+                    <h1>
+                        {{ transfer.files | length }}
+                        file
+                        {% if transfer.files | length != 1 %}s{% endif %}
+                    </h1>
+                    <dl class="view-card__meta">
+                        <dt class="visually-hidden">Shared</dt>
+                        <dd>
+                            <time datetime="{{ transfer.created_at.isoformat() }}">
+                                {{ transfer.created_at | strftime }}
+                            </time>
+                        </dd>
+                        {% if transfer.expires_at %}
+                            <dt class="visually-hidden">Expires</dt>
+                            <dd>
+                                Expires {{ transfer.expires_at | strftime }}
+                            </dd>
+                        {% endif %}
+                    </dl>
+                </header>
+
+                {% if transfer.message %}
+                    <blockquote class="view-card__message">
+                        {{ transfer.message }}
+                    </blockquote>
+                {% endif %}
+
+                <ul class="download-list">
+                    {% for f in transfer.files %}
+                        <li class="download-list__item">
+                            <i class="fa-solid {{ f.mime_type | file_icon }} download-list__icon"
+                               aria-hidden="true"></i>
+                            <span class="download-list__info">
+                                <strong class="download-list__name">{{ f.filename }}</strong>
+                                <span class="download-list__size">{{ f.size | filesize }}</span>
+                            </span>
+                            <a href="{{ url_for('transfers.download_file', transfer_id=transfer.id, file_id=f.id) }}"
+                               class="btn btn--sm"
+                               download>
+                                <i class="fa-solid fa-download" aria-hidden="true"></i>
+                                Download
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                {% if transfer.files | length > 1 %}
+                    <footer class="view-card__footer">
+                        <a href="{{ url_for('transfers.download_archive', transfer_id=transfer.id) }}"
+                           class="btn">
+                            <i class="fa-solid fa-file-zipper" aria-hidden="true"></i>
+                            Download all as zip
+                        </a>
+                        <span class="view-card__total">{{ transfer.total_size | filesize }} total</span>
+                    </footer>
+                {% endif %}
+            </article>
+        {% endif %}
+    </main>
+{% endblock %}

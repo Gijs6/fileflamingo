@@ -1,0 +1,105 @@
+{% extends "skeleton.jinja" %}
+
+{% block title %}Message{% endblock %}
+{% block body_class %}pg-site{% endblock %}
+
+{% block body_content %}
+    <header class="site-header">
+        <a href="{{ url_for('transfers.index') }}" class="site-header__brand">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            FileFlamingo
+        </a>
+    </header>
+
+    <main class="site-main">
+        <section class="flow-card">
+            <header class="flow-card__header">
+                <h1>Add a message</h1>
+                <p>Optionally attach a note and send the link by email.</p>
+            </header>
+
+            <nav class="steps" aria-label="Upload progress">
+                <ol class="steps__list">
+                    <li class="steps__item steps__item--done">
+                        <i class="fa-solid fa-check steps__check" aria-hidden="true"></i>
+                        Upload
+                    </li>
+                    <li class="steps__item steps__item--active" aria-current="step">Message</li>
+                    <li class="steps__item">Options</li>
+                    <li class="steps__item">Done</li>
+                </ol>
+            </nav>
+
+            <article class="file-summary">
+                <ul class="file-summary__list">
+                    {% for f in transfer.files %}
+                        <li class="file-summary__item">
+                            <i class="fa-solid {{ f.mime_type | file_icon }} file-summary__icon"
+                               aria-hidden="true"></i>
+                            <span class="file-summary__name">{{ f.filename }}</span>
+                            <span class="file-summary__size">{{ f.size | filesize }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </article>
+
+            <form class="flow-card__body"
+                  method="post"
+                  action="{{ url_for('transfers.save_message', transfer_id=transfer.id) }}"
+                  hx-patch="{{ url_for('transfers.save_message', transfer_id=transfer.id) }}"
+                  hx-boost="false">
+                <input type="hidden" name="_method" value="PATCH" />
+
+                <div class="form-field">
+                    <label for="message">Message (optional)</label>
+                    <textarea name="message"
+                              id="message"
+                              rows="4"
+                              placeholder="Add a note for the recipient...">{{ transfer.message or '' }}</textarea>
+                </div>
+
+                <div class="form-field">
+                    <label for="email">Send link to email (optional)</label>
+                    <input type="email"
+                           name="email"
+                           id="email"
+                           value="{{ transfer.recipient_email or '' }}"
+                           placeholder="recipient@example.com" />
+                </div>
+
+                <footer class="flow-card__actions">
+                    <a href="{{ url_for('transfers.index') }}" class="btn btn--ghost">
+                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                        Back
+                    </a>
+                    <button type="submit" class="btn" id="continue-btn" hidden>
+                        Continue
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                    <a href="{{ url_for('transfers.details', transfer_id=transfer.id) }}"
+                       class="btn btn--ghost"
+                       id="skip-btn">Skip</a>
+                </footer>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        (function() {
+            const messageField = document.getElementById('message');
+            const emailField = document.getElementById('email');
+            const continueBtn = document.getElementById('continue-btn');
+            const skipBtn = document.getElementById('skip-btn');
+
+            function update() {
+                const filled = messageField.value.trim() !== '' || emailField.value.trim() !== '';
+                continueBtn.hidden = !filled;
+                skipBtn.hidden = filled;
+            }
+
+            messageField.addEventListener('input', update);
+            emailField.addEventListener('input', update);
+            update();
+        })();
+    </script>
+{% endblock %}
