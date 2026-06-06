@@ -1,4 +1,5 @@
 import io
+import mimetypes
 import os
 import uuid
 import zipfile
@@ -59,7 +60,7 @@ def create():
                 transfer_id=transfer.id,
                 filename=name,
                 stored_name=stored,
-                mime_type=f.mimetype or None,
+                mime_type=mimetypes.guess_type(name)[0] or f.mimetype or None,
                 size=os.path.getsize(os.path.join(folder, stored)),
             )
         )
