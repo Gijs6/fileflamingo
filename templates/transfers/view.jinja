@@ -65,6 +65,7 @@
                             </span>
                             <a href="{{ url_for('transfers.download_file', transfer_id=transfer.id, file_id=f.id) }}"
                                class="btn btn--sm"
+                               hx-boost="false"
                                download>
                                 <i class="fa-solid fa-download" aria-hidden="true"></i>
                                 Download
@@ -76,7 +77,8 @@
                 {% if transfer.files | length > 1 %}
                     <footer class="view-card__footer">
                         <a href="{{ url_for('transfers.download_archive', transfer_id=transfer.id) }}"
-                           class="btn">
+                           class="btn"
+                           hx-boost="false">
                             <i class="fa-solid fa-file-zipper" aria-hidden="true"></i>
                             Download all as zip
                         </a>
