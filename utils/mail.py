@@ -1,9 +1,12 @@
 import logging
 import os
 from email.mime.text import MIMEText
+from email.utils import formataddr
 from smtplib import SMTP_SSL as SMTP
 
 logger = logging.getLogger("mail")
+
+SENDER_NAME = "FileFlamingo"
 
 
 def send_transfer_email(recipient_email, download_url, message=None):
@@ -16,17 +19,18 @@ def send_transfer_email(recipient_email, download_url, message=None):
         logger.warning("SMTP not configured, skipping email to %s", recipient_email)
         return False
 
-    body_parts = ["Someone shared files with you via FileFlamingo."]
+    body_parts = ["Hey,", "\nSomeone shared files with you via FileFlamingo."]
     if message:
         body_parts.append(f"\nMessage from sender:\n{message}")
     body_parts.append(f"\nDownload your files here:\n{download_url}")
-    body_parts.append("\nThis link may expire - download your files before then.")
+    body_parts.append("\nThis link may expire, so download your files before then.")
+    body_parts.append("\nFileFlamingo")
     content = "\n".join(body_parts)
 
     try:
         msg = MIMEText(content, "plain")
-        msg["Subject"] = "Someone shared files with you from FileFlamingo"
-        msg["From"] = sender
+        msg["Subject"] = "Files shared with you - FileFlamingo"
+        msg["From"] = formataddr((SENDER_NAME, sender))
         msg["To"] = recipient_email
 
         conn = SMTP(server)
