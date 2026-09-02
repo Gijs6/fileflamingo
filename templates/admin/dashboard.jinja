@@ -3,31 +3,30 @@
 {% block title %}Transfers{% endblock %}
 
 {% block content %}
-    <header class="page-hero">
+    <div class="page-head">
         <h1>Transfers</h1>
-    </header>
+    </div>
 
-    <section class="stat-row" aria-label="Summary statistics">
-        <article class="stat-card">
-            <p class="stat-card__value">{{ transfers | length }}</p>
-            <p class="stat-card__label">Transfers</p>
-        </article>
-        <article class="stat-card">
-            <p class="stat-card__value">{{ total_files }}</p>
-            <p class="stat-card__label">Files</p>
-        </article>
-        <article class="stat-card">
-            <p class="stat-card__value">{{ total_size | filesize }}</p>
-            <p class="stat-card__label">Storage</p>
-        </article>
-        <article class="stat-card">
-            <p class="stat-card__value">{{ transfers | selectattr("is_expired") | list | length }}</p>
-            <p class="stat-card__label">Expired</p>
-        </article>
-    </section>
+    <div class="stat-row" aria-label="Summary">
+        <div class="stat">
+            <span class="stat__value">{{ transfers | length }}</span>
+            <span class="stat__label">Transfers</span>
+        </div>
+        <div class="stat">
+            <span class="stat__value">{{ total_files }}</span>
+            <span class="stat__label">Files</span>
+        </div>
+        <div class="stat">
+            <span class="stat__value">{{ total_size | filesize }}</span>
+            <span class="stat__label">Storage</span>
+        </div>
+        <div class="stat">
+            <span class="stat__value">{{ transfers | selectattr("is_expired") | list | length }}</span>
+            <span class="stat__label">Expired</span>
+        </div>
+    </div>
 
-    <section class="admin-card"
-             id="transfers-table"
+    <section id="transfers-table"
              hx-get="{{ url_for('admin.transfers_table') }}"
              hx-trigger="every 15s"
              hx-swap="innerHTML">

@@ -1,79 +1,61 @@
-{% extends "skeleton.jinja" %}
+{% extends "site_base.jinja" %}
+
+{% from "_macros.jinja" import icon, steps %}
 
 {% block title %}Share files{% endblock %}
-{% block body_class %}pg-site{% endblock %}
 
-{% block body_content %}
-    <header class="site-header">
-        <a href="{{ url_for('transfers.index') }}" class="site-header__brand">
-            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-            FileFlamingo
-        </a>
-    </header>
+{% block content %}
+    <div class="page-head">
+        <div>
+            <h1>Share files</h1>
+            <p class="lead">Upload files and get a link to share with anyone.</p>
+        </div>
+    </div>
 
-    <main class="site-main">
-        <section class="flow-card">
-            <header class="flow-card__header">
-                <h1>Share files</h1>
-                <p>Upload files and get a link to share with anyone.</p>
-            </header>
+    {{ steps(1) }}
 
-            <nav class="steps" aria-label="Upload progress">
-                <ol class="steps__list">
-                    <li class="steps__item steps__item--active" aria-current="step">Upload</li>
-                    <li class="steps__item">Message</li>
-                    <li class="steps__item">Options</li>
-                    <li class="steps__item">Done</li>
-                </ol>
-            </nav>
+    <form class="form"
+          method="post"
+          action="{{ url_for('transfers.create') }}"
+          enctype="multipart/form-data"
+          hx-post="{{ url_for('transfers.create') }}"
+          hx-encoding="multipart/form-data"
+          hx-disabled-elt="#submit-btn">
+        <fieldset class="form__section">
+            <legend class="visually-hidden">Select files to upload</legend>
 
-            <form class="flow-card__body"
-                  method="post"
-                  action="{{ url_for('transfers.create') }}"
-                  enctype="multipart/form-data"
-                  hx-post="{{ url_for('transfers.create') }}"
-                  hx-encoding="multipart/form-data"
-                  hx-disabled-elt="#submit-btn"
-                  hx-boost="false">
-                <fieldset class="flow-card__fieldset">
-                    <legend class="visually-hidden">Select files to upload</legend>
-                    <label class="dropzone" id="dropzone">
-                        <input type="file"
-                               name="files[]"
-                               id="files"
-                               multiple
-                               class="dropzone__input" />
-                        <span class="dropzone__prompt">
-                            <i class="fa-solid fa-cloud-arrow-up dropzone__icon" aria-hidden="true"></i>
-                            <span class="dropzone__text">Drop files here or <strong>browse</strong></span>
-                        </span>
-                        <span class="dropzone__summary" id="dropzone-summary" hidden>
-                            <i class="fa-solid fa-circle-check dropzone__summary-icon"
-                               aria-hidden="true"></i>
-                            <span id="dropzone-summary-label"></span>
-                            <span class="dropzone__summary-hint">Click to add more</span>
-                        </span>
-                    </label>
-                    <ol class="file-list" id="file-list" aria-live="polite">
-                    </ol>
-                </fieldset>
+            <label class="file-drop" id="dropzone">
+                <input type="file" name="files[]" id="files" multiple />
+                {{ icon('upload', 'file-drop__icon') }}
+                <span class="file-drop__primary" id="dropzone-primary">Drop files here or browse</span>
+                <span class="file-drop__hint" id="dropzone-hint">Any file type, up to the server limit</span>
+            </label>
 
-                <div class="upload-progress" id="upload-progress" hidden>
-                    <div class="upload-progress__track">
-                        <div class="upload-progress__fill" id="upload-progress-fill"></div>
-                    </div>
-                    <p class="upload-progress__label" id="upload-progress-label">Uploading…</p>
-                </div>
+            <ul class="file-list" id="file-list" aria-live="polite">
+            </ul>
 
-                <footer class="flow-card__actions">
-                    <button type="submit" class="btn" id="submit-btn" disabled>
-                        Continue
-                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                    </button>
-                </footer>
-            </form>
-        </section>
-    </main>
+            <template id="file-row">
+                <li class="file-list__item">
+                    {{ icon('file', 'file-list__icon') }}
+                    <span class="file-list__name"></span>
+                    <span class="file-list__size"></span>
+                </li>
+            </template>
+        </fieldset>
+
+        <div class="meter" id="upload-progress" hidden>
+            <div class="meter__head">
+                <span id="upload-progress-label">Uploading</span>
+            </div>
+            <div class="meter__track">
+                <div class="meter__fill" id="upload-progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="form__actions form__actions--end">
+            <button type="submit" class="button" id="submit-btn" disabled>Continue {{ icon("arrow-right") }}</button>
+        </div>
+    </form>
 
     <script>
         (function() {
@@ -81,8 +63,9 @@
             const input = document.getElementById('files');
             const list = document.getElementById('file-list');
             const btn = document.getElementById('submit-btn');
-            const summary = document.getElementById('dropzone-summary');
-            const summaryLabel = document.getElementById('dropzone-summary-label');
+            const primary = document.getElementById('dropzone-primary');
+            const hint = document.getElementById('dropzone-hint');
+            const rowTemplate = document.getElementById('file-row');
 
             let files = [];
 
@@ -118,22 +101,20 @@
 
                 list.innerHTML = '';
                 files.forEach(function(f) {
-                    var li = document.createElement('li');
-                    li.className = 'file-list__item';
-                    li.innerHTML = '<i class="fa-solid fa-file file-list__icon" aria-hidden="true"></i>' +
-                        '<span class="file-list__name">' + f.name + '</span>' +
-                        '<span class="file-list__size">' + fmt(f.size) + '</span>';
+                    var li = rowTemplate.content.firstElementChild.cloneNode(true);
+                    li.querySelector('.file-list__name').textContent = f.name;
+                    li.querySelector('.file-list__size').textContent = fmt(f.size);
                     list.appendChild(li);
                 });
 
                 btn.disabled = !hasFiles;
-                dropzone.classList.toggle('dropzone--has-files', hasFiles);
 
                 if (hasFiles) {
-                    summaryLabel.textContent = files.length === 1 ? '1 file' : files.length + ' files';
-                    summary.hidden = false;
+                    primary.textContent = files.length === 1 ? '1 file selected' : files.length + ' files selected';
+                    hint.textContent = 'Click to add more';
                 } else {
-                    summary.hidden = true;
+                    primary.textContent = 'Drop files here or browse';
+                    hint.textContent = 'Any file type, up to the server limit';
                 }
             }
 
@@ -143,16 +124,16 @@
 
             dropzone.addEventListener('dragover', function(e) {
                 e.preventDefault();
-                dropzone.classList.add('dropzone--dragover');
+                dropzone.classList.add('is-dragover');
             });
             dropzone.addEventListener('dragleave', function(e) {
                 if (!dropzone.contains(e.relatedTarget)) {
-                    dropzone.classList.remove('dropzone--dragover');
+                    dropzone.classList.remove('is-dragover');
                 }
             });
             dropzone.addEventListener('drop', function(e) {
                 e.preventDefault();
-                dropzone.classList.remove('dropzone--dragover');
+                dropzone.classList.remove('is-dragover');
                 addFiles(e.dataTransfer.files);
             });
 
@@ -162,8 +143,8 @@
             var progressLabel = document.getElementById('upload-progress-label');
 
             form.addEventListener('htmx:beforeRequest', function() {
-                progressFill.style.width = '0%';
-                progressLabel.textContent = 'Uploading…';
+                progressFill.style.setProperty('--meter', '0%');
+                progressLabel.textContent = 'Uploading';
                 progressEl.hidden = false;
             });
 
@@ -171,8 +152,8 @@
                 e.detail.xhr.upload.addEventListener('progress', function(ev) {
                     if (!ev.lengthComputable) return;
                     var pct = Math.round((ev.loaded / ev.total) * 100);
-                    progressFill.style.width = pct + '%';
-                    progressLabel.textContent = pct < 100 ? pct + '%' : 'Processing…';
+                    progressFill.style.setProperty('--meter', pct + '%');
+                    progressLabel.textContent = pct < 100 ? pct + '%' : 'Processing';
                 });
             });
 

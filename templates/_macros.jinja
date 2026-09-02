@@ -1,0 +1,32 @@
+{% macro icon(name, cls="") -%}
+    <svg class="icon{% if cls %} {{ cls }}{% endif %}"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         aria-hidden="true">
+        {% include "icons/" ~ name ~ ".svg" %}
+
+    </svg>
+{%- endmacro %}
+
+{% macro steps(current) -%}
+    {%- set names = ["Upload", "Message", "Options", "Done"] -%}
+    <ol class="steps" aria-label="Progress">
+        {% for name in names %}
+            {%- set n = loop.index -%}
+            <li class="steps__item{% if n < current %} steps__item--done{% elif n == current %} steps__item--current{% endif %}"
+                {% if n == current %}aria-current="step"{% endif %}>
+                <span class="steps__marker">
+                    {%- if n < current %}{{ icon("check") }}
+                    {% else %}
+                        {{ n }}
+                    {% endif -%}
+                </span>
+                {{ name }}
+            </li>
+        {% endfor %}
+    </ol>
+{%- endmacro %}

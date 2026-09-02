@@ -1,42 +1,30 @@
 {% extends "skeleton.jinja" %}
 
-{% block body_class %}pg-admin{% endblock %}
+{% from "_macros.jinja" import icon %}
 
-{% macro nav_item(endpoint, label) %}
-    <li>
-        <a href="{{ url_for(endpoint) }}"
-           class="admin-nav__link{% if request.endpoint == endpoint %} admin-nav__link--active{% endif %}">{{ label }}</a>
-    </li>
-{% endmacro %}
+{% block body_class %}page page--topnav page--wide{% endblock %}
 
 {% block body_content %}
-    <header class="admin-header">
-        <a href="{{ url_for('admin.dashboard') }}" class="admin-header__brand">
-            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-            FileFlamingo
-            <span class="admin-header__badge">Admin</span>
+    <header class="app-bar">
+        <a href="{{ url_for('admin.dashboard') }}" class="wordmark">
+            <span class="wordmark__mark">{{ icon("bird") }}</span>
+            <span class="wordmark__text">FileFlamingo</span>
         </a>
 
-        <nav class="admin-nav" aria-label="Admin navigation">
-            <ul class="admin-nav__list">
-                {{ nav_item('admin.dashboard', 'Transfers') }}
-            </ul>
+        <nav class="app-bar__nav" aria-label="Admin">
+            <a href="{{ url_for('admin.dashboard') }}"
+               {% if request.blueprint == "admin" %}aria-current="page"{% endif %}>Transfers</a>
         </nav>
 
-        <div class="admin-header__end">
-            <a href="{{ url_for('transfers.index') }}"
-               class="admin-header__site-link">
-                <i class="fa-solid fa-arrow-up-right-from-square fa-sm"
-                   aria-hidden="true"></i>
-                View site
-            </a>
+        <div class="app-bar__actions">
+            <a href="{{ url_for('transfers.index') }}" class="button button--ghost">{{ icon("external-link") }} View site</a>
             <form method="post" action="{{ url_for('admin.logout') }}">
-                <button type="submit" class="admin-header__signout">Sign out</button>
+                <button type="submit" class="button button--ghost">{{ icon("log-out") }} Sign out</button>
             </form>
         </div>
     </header>
 
-    <main class="admin-main">
+    <main class="page__main">
         {% block content %}{% endblock %}
     </main>
 {% endblock %}

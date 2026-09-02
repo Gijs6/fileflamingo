@@ -1,36 +1,30 @@
 {% extends "skeleton.jinja" %}
 
-{% block title %}Admin login{% endblock %}
-{% block body_class %}pg-auth{% endblock %}
+{% from "_macros.jinja" import icon %}
+
+{% block title %}Sign in{% endblock %}
+{% block body_class %}page page--centered{% endblock %}
 
 {% block body_content %}
-    <main class="auth-main">
-        <article class="auth-card">
-            <header class="auth-card__header">
-                <p class="auth-card__brand">
-                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-                    FileFlamingo
-                </p>
-                <h1 class="auth-card__title">Admin</h1>
-            </header>
+    <main class="page__main auth">
+        <span class="auth__brand">{{ icon("bird") }} FileFlamingo</span>
 
-            <form method="post"
-                  action="{{ url_for('admin.do_login') }}"
-                  class="auth-card__form">
-                <div class="form-field">
-                    <label for="password">Password</label>
-                    <input type="password"
-                           name="password"
-                           id="password"
-                           required
-                           autofocus
-                           autocomplete="current-password" />
-                </div>
-                <button type="submit" class="btn auth-card__submit">
-                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-                    Sign in
-                </button>
-            </form>
-        </article>
+        <form method="post"
+              action="{{ url_for('admin.do_login') }}"
+              class="form auth__form">
+            <div class="field">
+                <label class="field__label" for="password">Password</label>
+                <input class="field__control field__control--full"
+                       type="password"
+                       name="password"
+                       id="password"
+                       required
+                       autofocus
+                       autocomplete="current-password" />
+            </div>
+            <div class="form__actions">
+                <button type="submit" class="button">{{ icon("log-in") }} Sign in</button>
+            </div>
+        </form>
     </main>
 {% endblock %}

@@ -1,0 +1,18 @@
+{% extends "skeleton.jinja" %}
+
+{% from "_macros.jinja" import icon %}
+
+{% block body_class %}page page--centered{% endblock %}
+
+{% block body_content %}
+    <header class="app-bar">
+        <a href="{{ url_for('transfers.index') }}" class="wordmark">
+            <span class="wordmark__mark">{{ icon("bird") }}</span>
+            <span class="wordmark__text">FileFlamingo</span>
+        </a>
+    </header>
+
+    <main class="page__main">
+        {% block content %}{% endblock %}
+    </main>
+{% endblock %}
