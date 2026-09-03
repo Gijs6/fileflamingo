@@ -53,14 +53,6 @@
     inline-size: 100%;
 }
 
-.error__code {
-    font-family: var(--font-mono);
-    font-size: var(--t-4);
-    line-height: 1;
-    color: var(--faint);
-    margin-block-end: var(--sp-sm);
-}
-
 .app-bar__actions form {
     display: contents;
 }
