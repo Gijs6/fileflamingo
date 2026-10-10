@@ -1,28 +1,16 @@
 {% extends "skeleton.jinja" %}
 
-{% from "_macros.jinja" import icon %}
-
-{% block body_class %}page page--centered{% endblock %}
-
 {% block body_content %}
-    <header class="app-bar">
-        <a href="{{ url_for('transfers.index') }}" class="wordmark">
-            <span class="wordmark__mark">{{ icon("bird") }}</span>
-            <span class="wordmark__text">FileFlamingo</span>
-        </a>
+    <header class="navbar">
+        <div class="navbar__inner">
+            <a href="{{ url_for('transfers.index') }}" class="navbar__brand">{% include "mark.svg" %}FileFlamingo</a>
+        </div>
     </header>
 
-    <main class="page__main">
+    <main class="page">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="site-footer">
-        <p class="site-footer__meta">
-            <span class="site-footer__id">
-                <span class="site-footer__mark">{{ icon("bird") }}</span>
-                <b class="site-footer__name">FileFlamingo</b> by <a class="site-footer__by" href="https://gijs6.nl">Gijs6</a>
-            </span>
-            <a href="https://unlicense.org" rel="license">Unlicensed</a>
-        </p>
-    </footer>
+    {% include "_footer.jinja" %}
+
 {% endblock %}
