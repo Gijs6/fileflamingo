@@ -28,30 +28,9 @@ def filesize_filter(value):
     return f"{value / (1024 * 1024 * 1024):.1f} GB"
 
 
-def file_icon_filter(mime_type):
-    if not mime_type:
-        return "file"
-    if mime_type == "application/pdf":
-        return "file-text"
-    if mime_type.startswith("text/") or "json" in mime_type or "xml" in mime_type:
-        return "file-text"
-    text_hints = (
-        "word",
-        "document",
-        "excel",
-        "spreadsheet",
-        "presentation",
-        "powerpoint",
-    )
-    if any(hint in mime_type for hint in text_hints):
-        return "file-text"
-    return "file"
-
-
 FILTERS = {
     "strftime": strftime_filter,
     "filesize": filesize_filter,
-    "file_icon": file_icon_filter,
 }
 
 
