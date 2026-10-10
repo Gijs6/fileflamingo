@@ -12,17 +12,7 @@
     <main class="page page--narrow error">
         <p class="error__code">{{ code }}</p>
         <h1>{{ title }}</h1>
-        <p class="lead">
-            {% if code == 404 %}
-                This page or transfer does not exist.
-            {% elif code == 410 %}
-                This transfer has expired and its files have been removed.
-            {% elif code == 413 %}
-                The uploaded file exceeds the maximum allowed size.
-            {% else %}
-                Something went wrong.
-            {% endif %}
-        </p>
+        <p class="lead">{{ description }}</p>
         <a href="{{ url_for('transfers.index') }}" class="btn">Go home</a>
     </main>
 {% endblock %}

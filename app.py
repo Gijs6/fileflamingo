@@ -40,17 +40,42 @@ def method_override():
 
 @app.errorhandler(404)
 def not_found(_e):
-    return render_template("error.jinja", code=404, title="Not found"), 404
+    return render_template(
+        "error.jinja",
+        code=404,
+        title="Not found",
+        description="The page or transfer you're looking for doesn't exist.",
+    ), 404
 
 
 @app.errorhandler(410)
 def gone(_e):
-    return render_template("error.jinja", code=410, title="Transfer expired"), 410
+    return render_template(
+        "error.jinja",
+        code=410,
+        title="Transfer expired",
+        description="This transfer has expired and its files have been deleted.",
+    ), 410
 
 
 @app.errorhandler(413)
 def too_large(_e):
-    return render_template("error.jinja", code=413, title="File too large"), 413
+    return render_template(
+        "error.jinja",
+        code=413,
+        title="File too large",
+        description="The upload is larger than the server allows. Try fewer or smaller files.",
+    ), 413
+
+
+@app.errorhandler(500)
+def server_error(_e):
+    return render_template(
+        "error.jinja",
+        code=500,
+        title="Server error",
+        description="Something went wrong on our end. Try again later.",
+    ), 500
 
 
 if __name__ == "__main__":
