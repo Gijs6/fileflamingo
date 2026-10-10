@@ -9,7 +9,7 @@ def ensure_tz(dt):
     return dt
 
 
-def strftime_filter(value, fmt="%d %b %Y"):
+def strftime_filter(value, fmt="%-d %b %Y, %H:%M"):
     value = ensure_tz(value)
     if value is None:
         return "-"

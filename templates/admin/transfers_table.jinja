@@ -41,17 +41,15 @@
                             {% else %}
                                 <code>{{ transfer.id }}</code>
                             {% endif %}
-                        </td>
-                        <td class="table__num">
-                            {{ transfer.files | length }}
                             {% if transfer.recipient_email %}
                                 <span class="muted tooltip" tabindex="0" data-tooltip="Sent to {{ transfer.recipient_email }}">(emailed)</span>
                             {% endif %}
                         </td>
+                        <td class="table__num">{{ transfer.files | length }}</td>
                         <td class="table__num">{{ transfer.total_size | filesize }}</td>
                         <td class="table__num">{{ transfer.download_count }}</td>
                         <td>
-                            <time datetime="{{ transfer.created_at.isoformat() }}">{{ transfer.created_at | strftime("%d %b %Y, %H:%M") }}</time>
+                            <time datetime="{{ transfer.created_at.isoformat() }}">{{ transfer.created_at | strftime }}</time>
                         </td>
                         <td>
                             {% if transfer.expires_at %}
