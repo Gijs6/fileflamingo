@@ -1,11 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#b02a78" />
-  <g transform="translate(4 4)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M16 7h.01" />
-    <path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20" />
-    <path d="m20 7 2 .5-2 .5" />
-    <path d="M10 18v3" />
-    <path d="M14 17.75V21" />
-    <path d="M7 18a6 6 0 0 0 3.84-10.61" />
+  <rect width="32" height="32" fill="#c2255c" />
+  <g transform="translate(4 4)" color="#ffffff" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round">
+  <path d="M10.8703 7.0963L2 19.3162C4.3886 18.9914 6.7693 18.5988 8.1714 17.8575C19.009 18.1077 21.551 8.4795 19.2462 5.3327C16.6431 1.63 13.9428 3.1503 12.918 4.3733L10.8703 7.0963ZM8.1714 17.8575C13.4666 15.0578 12.4764 9.9085 10.8703 7.0963M20.0269 7.2419L22 9.0783L20.0269 10.1M10 17.9861L10 22M13.5 17.4L13.5 20.9714" fill="none"/>
+  <path d="M17 8C17 8.5523 16.5523 9 16 9C15.4477 9 15 8.5523 15 8C15 7.4477 15.4477 7 16 7C16.5523 7 17 7.4477 17 8Z" fill="currentColor" stroke="none"/>
   </g>
 </svg>
