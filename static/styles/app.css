@@ -101,18 +101,6 @@
     color: var(--muted);
 }
 
-.link-group {
-    display: flex;
-    gap: var(--space-xs);
-    max-inline-size: 40em;
-    margin-block-end: var(--space-2xl);
-
-    input {
-        flex: 1;
-        min-inline-size: 0;
-    }
-}
-
 .transfer-message {
     margin: 0 0 var(--space-2xl);
     padding: var(--space-sm) var(--space-lg);
