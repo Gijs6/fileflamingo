@@ -1,21 +1,21 @@
 {% extends "skeleton.jinja" %}
 
-{% from "_macros.jinja" import icon %}
-
 {% block title %}Sign in{% endblock %}
-{% block body_class %}page page--centered{% endblock %}
 
 {% block body_content %}
-    <main class="page__main auth">
-        <span class="auth__brand">{{ icon("bird") }} FileFlamingo</span>
+    <header class="navbar">
+        <div class="navbar__inner">
+            <a href="{{ url_for('transfers.index') }}" class="navbar__brand">{% include "mark.svg" %}FileFlamingo</a>
+        </div>
+    </header>
 
-        <form method="post"
-              action="{{ url_for('admin.do_login') }}"
-              class="form auth__form">
+    <main class="page page--narrow">
+        <h1>Sign in</h1>
+
+        <form method="post" action="{{ url_for('admin.do_login') }}">
             <div class="field">
                 <label class="field__label" for="password">Password</label>
-                <input class="field__control field__control--full"
-                       type="password"
+                <input type="password"
                        name="password"
                        id="password"
                        required
@@ -23,7 +23,7 @@
                        autocomplete="current-password" />
             </div>
             <div class="form__actions">
-                <button type="submit" class="button">{{ icon("log-in") }} Sign in</button>
+                <button type="submit" class="btn">Sign in</button>
             </div>
         </form>
     </main>

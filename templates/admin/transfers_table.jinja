@@ -1,16 +1,32 @@
-{% from "_macros.jinja" import icon %}
+<div class="table-wrap">
+    <table class="table table--kv" aria-label="Summary">
+        <tbody>
+            <tr>
+                <th scope="row">Transfers</th>
+                <td>{{ transfers | length }}</td>
+                <th scope="row">Files</th>
+                <td>{{ total_files }}</td>
+                <th scope="row">Storage</th>
+                <td>{{ total_size | filesize }}</td>
+                <th scope="row">Expired</th>
+                <td>{{ transfers | selectattr("is_expired") | list | length }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 {% if transfers %}
     <div class="table-wrap">
-        <table class="table table--rows table--hover">
+        <table class="table">
             <thead>
                 <tr>
                     <th scope="col">Id</th>
-                    <th scope="col" class="num">Files</th>
-                    <th scope="col" class="num">Size</th>
-                    <th scope="col" class="num">Downloads</th>
+                    <th scope="col" class="table__num">Files</th>
+                    <th scope="col" class="table__num">Size</th>
+                    <th scope="col" class="table__num">Downloads</th>
                     <th scope="col">Created</th>
                     <th scope="col">Expires</th>
-                    <th scope="col">
+                    <th scope="col" class="table__actions">
                         <span class="visually-hidden">Actions</span>
                     </th>
                 </tr>
@@ -20,44 +36,44 @@
                     <tr class="{% if transfer.is_expired %}transfer-row--expired{% elif transfer.status == 'pending' %}transfer-row--pending{% endif %}">
                         <td>
                             {% if transfer.status == "ready" %}
-                                <a class="id"
-                                   href="{{ url_for('transfers.view', transfer_id=transfer.id) }}"
-                                   target="_blank">{{ transfer.id }}{{ icon("external-link") }}</a>
+                                <a href="{{ url_for('transfers.view', transfer_id=transfer.id) }}"
+                                   target="_blank"><code>{{ transfer.id }}</code></a>
                             {% else %}
-                                <span class="id">{{ transfer.id }}</span>
+                                <code>{{ transfer.id }}</code>
                             {% endif %}
                         </td>
-                        <td class="num">
-                            <span class="files-count">
-                                {{ transfer.files | length }}
-                                {% if transfer.recipient_email %}<span class="tooltip" data-tooltip="Sent to {{ transfer.recipient_email }}">{{ icon("mail") }}</span>{% endif %}
-                            </span>
+                        <td class="table__num">
+                            {{ transfer.files | length }}
+                            {% if transfer.recipient_email %}
+                                <span class="muted tooltip" tabindex="0" data-tooltip="Sent to {{ transfer.recipient_email }}">(emailed)</span>
+                            {% endif %}
                         </td>
-                        <td class="num">{{ transfer.total_size | filesize }}</td>
-                        <td class="num">{{ transfer.download_count }}</td>
+                        <td class="table__num">{{ transfer.total_size | filesize }}</td>
+                        <td class="table__num">{{ transfer.download_count }}</td>
                         <td>
                             <time datetime="{{ transfer.created_at.isoformat() }}">{{ transfer.created_at | strftime("%d %b %Y, %H:%M") }}</time>
                         </td>
                         <td>
                             {% if transfer.expires_at %}
                                 {% if transfer.is_expired %}
-                                    <span class="badge badge--warn">Expired</span>
+                                    <span class="status status--warn">Expired</span>
                                 {% else %}
                                     {{ transfer.expires_at | strftime }}
                                 {% endif %}
                             {% elif transfer.status == "pending" %}
-                                <span class="badge">Pending</span>
+                                <span class="status">Pending</span>
                             {% else %}
-                                <span class="faint">Never</span>
+                                <span class="muted">Never</span>
                             {% endif %}
                         </td>
-                        <td class="actions">
+                        <td class="table__actions">
                             <button type="button"
-                                    class="button button--danger button--sm"
+                                    class="btn btn--danger btn--sm"
                                     hx-delete="{{ url_for('admin.delete_transfer', transfer_id=transfer.id) }}"
                                     hx-confirm="Delete this transfer and all its files?"
                                     hx-target="closest tr"
-                                    hx-swap="outerHTML swap:200ms">{{ icon("trash-2") }} Delete</button>
+                                    hx-swap="outerHTML"
+                                    hx-on::after-request="htmx.trigger('body', 'transfers-changed')">Delete</button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -65,8 +81,7 @@
         </table>
     </div>
 {% else %}
-    <div class="empty empty--framed">
-        {{ icon('bird', 'empty__icon') }}
+    <div class="empty">
         <p class="empty__title">No transfers yet</p>
         <p class="empty__text">Transfers people create will show up here.</p>
     </div>
