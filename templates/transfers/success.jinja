@@ -59,7 +59,6 @@
         (function() {
             const btn = document.getElementById('copy-btn');
             const urlInput = document.getElementById('link-url');
-            const label = btn;
             if (!btn || !urlInput) return;
 
             function copy() {
@@ -81,10 +80,7 @@
             }
 
             function onCopied() {
-                label.textContent = 'Copied';
-                setTimeout(function() {
-                    label.textContent = 'Copy link';
-                }, 2500);
+                window.toast('Link copied.', { type: 'success' });
             }
 
             btn.addEventListener('click', copy);
