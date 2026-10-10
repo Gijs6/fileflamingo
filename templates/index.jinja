@@ -25,7 +25,6 @@
             <label class="file-drop" id="dropzone">
                 <input type="file" name="files[]" id="files" multiple />
                 <span class="file-drop__primary" id="dropzone-primary">Drop files here or browse</span>
-                <span class="file-drop__hint" id="dropzone-hint">Any file type, up to the server limit</span>
             </label>
 
             <table class="table file-table" id="file-table" hidden>
@@ -66,7 +65,6 @@
             const list = document.getElementById('file-list');
             const btn = document.getElementById('submit-btn');
             const primary = document.getElementById('dropzone-primary');
-            const hint = document.getElementById('dropzone-hint');
             const rowTemplate = document.getElementById('file-row');
 
             let files = [];
@@ -114,10 +112,8 @@
 
                 if (hasFiles) {
                     primary.textContent = files.length === 1 ? '1 file selected' : files.length + ' files selected';
-                    hint.textContent = 'Click to add more';
                 } else {
                     primary.textContent = 'Drop files here or browse';
-                    hint.textContent = 'Any file type, up to the server limit';
                 }
             }
 

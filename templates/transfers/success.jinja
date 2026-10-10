@@ -9,13 +9,7 @@
         <h1>Ready to share</h1>
     </div>
 
-    <p class="lead">
-        {% if transfer.recipient_email %}
-            Link sent to {{ transfer.recipient_email }}.
-        {% else %}
-            Copy the link below and share it with anyone.
-        {% endif %}
-    </p>
+    {% if transfer.recipient_email %}<p class="lead">Link sent to {{ transfer.recipient_email }}.</p>{% endif %}
 
     {{ steps(4) }}
 

@@ -68,10 +68,6 @@
     text-decoration: underline;
 }
 
-.file-drop__hint {
-    color: var(--muted);
-}
-
 .file-table__name {
     overflow-wrap: anywhere;
 }
