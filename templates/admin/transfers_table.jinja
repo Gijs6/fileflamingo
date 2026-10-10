@@ -42,7 +42,9 @@
                                 <code>{{ transfer.id }}</code>
                             {% endif %}
                             {% if transfer.recipient_email %}
-                                <span class="muted tooltip" tabindex="0" data-tooltip="Sent to {{ transfer.recipient_email }}">(emailed)</span>
+                                <span class="muted tooltip"
+                                      tabindex="0"
+                                      data-tooltip="Sent to {{ transfer.recipient_email }}">(emailed)</span>
                             {% endif %}
                         </td>
                         <td class="table__num">{{ transfer.files | length }}</td>
