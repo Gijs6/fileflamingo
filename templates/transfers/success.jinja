@@ -1,71 +1,65 @@
 {% extends "site_base.jinja" %}
 
-{% from "_macros.jinja" import icon, steps %}
+{% from "_macros.jinja" import steps %}
 
 {% block title %}Ready to share{% endblock %}
 
 {% block content %}
     <div class="page-head">
-        <div>
-            <h1>Ready to share</h1>
-            <p class="lead">
-                {% if transfer.recipient_email %}
-                    Link sent to {{ transfer.recipient_email }}.
-                {% else %}
-                    Copy the link below and share it with anyone.
-                {% endif %}
-            </p>
-        </div>
+        <h1>Ready to share</h1>
     </div>
+
+    <p class="lead">
+        {% if transfer.recipient_email %}
+            Link sent to {{ transfer.recipient_email }}.
+        {% else %}
+            Copy the link below and share it with anyone.
+        {% endif %}
+    </p>
 
     {{ steps(4) }}
 
     <div class="link-group">
         <input type="text"
-               class="field__control"
                id="link-url"
                value="{{ download_url }}"
                readonly
                aria-label="Shareable download link" />
-        <button type="button" class="button" id="copy-btn">
-            {{ icon("copy") }} <span>Copy link</span>
-        </button>
+        <button type="button" class="btn" id="copy-btn">Copy link</button>
     </div>
 
-    <dl class="data-list data-list--rows">
-        <div>
-            <dt>Files</dt>
-            <dd>
-                {{ transfer.files | length }}
-            </dd>
-        </div>
-        <div>
-            <dt>Size</dt>
-            <dd>
-                {{ transfer.total_size | filesize }}
-            </dd>
-        </div>
-        <div>
-            <dt>Expires</dt>
-            <dd>
-                {% if transfer.expires_at %}
-                    {{ transfer.expires_at | strftime }}
-                {% else %}
-                    Never
-                {% endif %}
-            </dd>
-        </div>
-    </dl>
+    <table class="table table--kv">
+        <tbody>
+            <tr>
+                <th scope="row">Files</th>
+                <td>{{ transfer.files | length }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Size</th>
+                <td>{{ transfer.total_size | filesize }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Expires</th>
+                <td>
+                    {% if transfer.expires_at %}
+                        {{ transfer.expires_at | strftime }}
+                    {% else %}
+                        Never
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
     <div class="form__actions">
-        <a href="{{ url_for('transfers.index') }}" class="button button--ghost">{{ icon("plus") }} Share more files</a>
+        <a href="{{ url_for('transfers.index') }}" class="btn">Share more files</a>
     </div>
 
     <script>
         (function() {
             const btn = document.getElementById('copy-btn');
             const urlInput = document.getElementById('link-url');
-            const label = btn.querySelector('span');
+            const label = btn;
             if (!btn || !urlInput) return;
 
             function copy() {

@@ -1,59 +1,62 @@
 {% extends "site_base.jinja" %}
 
-{% from "_macros.jinja" import icon, steps %}
+{% from "_macros.jinja" import steps %}
 
 {% block title %}Add a message{% endblock %}
 
 {% block content %}
     <div class="page-head">
-        <div>
-            <h1>Add a message</h1>
-            <p class="lead">Optionally attach a note and send the link by email.</p>
-        </div>
+        <h1>Add a message</h1>
     </div>
+
+    <p class="lead">Optionally attach a note and send the link by email.</p>
 
     {{ steps(2) }}
 
-    <ul class="file-list">
-        {% for f in transfer.files %}
-            <li class="file-list__item">
-                {{ icon(f.mime_type | file_icon, "file-list__icon") }}
-                <span class="file-list__name">{{ f.filename }}</span>
-                <span class="file-list__size">{{ f.size | filesize }}</span>
-            </li>
-        {% endfor %}
-    </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">File</th>
+                <th scope="col" class="table__num">Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in transfer.files %}
+                <tr>
+                    <td class="file-table__name">{{ f.filename }}</td>
+                    <td class="table__num">{{ f.size | filesize }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <form class="form"
-          method="post"
+    <form method="post"
           action="{{ url_for('transfers.save_message', transfer_id=transfer.id) }}"
           hx-patch="{{ url_for('transfers.save_message', transfer_id=transfer.id) }}">
         <input type="hidden" name="_method" value="PATCH" />
 
         <div class="field">
-            <label class="field__label field__label--optional" for="message">Message</label>
-            <textarea class="field__control field__control--full"
-                      name="message"
+            <label class="field__label" for="message">Message <span class="field__optional">(optional)</span></label>
+            <textarea name="message"
                       id="message"
                       rows="4"
                       placeholder="Add a note for the recipient">{{ transfer.message or '' }}</textarea>
         </div>
 
         <div class="field">
-            <label class="field__label field__label--optional" for="email">Send link to email</label>
-            <input class="field__control field__control--full"
-                   type="email"
+            <label class="field__label" for="email">Send link to email <span class="field__optional">(optional)</span></label>
+            <input type="email"
                    name="email"
                    id="email"
                    value="{{ transfer.recipient_email or '' }}"
                    placeholder="recipient@example.com" />
         </div>
 
-        <div class="form__actions form__actions--split">
-            <a href="{{ url_for('transfers.index') }}" class="button button--ghost">{{ icon("arrow-left") }} Back</a>
-            <button type="submit" class="button" id="continue-btn" hidden>Continue {{ icon("arrow-right") }}</button>
+        <div class="form__actions">
+            <a href="{{ url_for('transfers.index') }}" class="btn">Back</a>
+            <button type="submit" class="btn" id="continue-btn" hidden>Continue</button>
             <a href="{{ url_for('transfers.details', transfer_id=transfer.id) }}"
-               class="button button--ghost"
+               class="btn"
                id="skip-btn">Skip</a>
         </div>
     </form>

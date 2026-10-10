@@ -1,59 +1,61 @@
 {% extends "site_base.jinja" %}
 
-{% from "_macros.jinja" import icon, steps %}
+{% from "_macros.jinja" import steps %}
 
 {% block title %}Share files{% endblock %}
 
 {% block content %}
     <div class="page-head">
-        <div>
-            <h1>Share files</h1>
-            <p class="lead">Upload files and get a link to share with anyone.</p>
-        </div>
+        <h1>Share files</h1>
     </div>
+
+    <p class="lead">Upload files and get a link to share with anyone.</p>
 
     {{ steps(1) }}
 
-    <form class="form"
-          method="post"
+    <form method="post"
           action="{{ url_for('transfers.create') }}"
           enctype="multipart/form-data"
           hx-post="{{ url_for('transfers.create') }}"
           hx-encoding="multipart/form-data"
           hx-disabled-elt="#submit-btn">
-        <fieldset class="form__section">
+        <fieldset class="file-drop-set">
             <legend class="visually-hidden">Select files to upload</legend>
 
             <label class="file-drop" id="dropzone">
                 <input type="file" name="files[]" id="files" multiple />
-                {{ icon('upload', 'file-drop__icon') }}
                 <span class="file-drop__primary" id="dropzone-primary">Drop files here or browse</span>
                 <span class="file-drop__hint" id="dropzone-hint">Any file type, up to the server limit</span>
             </label>
 
-            <ul class="file-list" id="file-list" aria-live="polite">
-            </ul>
+            <table class="table file-table" id="file-table" hidden>
+                <thead>
+                    <tr>
+                        <th scope="col">File</th>
+                        <th scope="col" class="table__num">Size</th>
+                    </tr>
+                </thead>
+                <tbody id="file-list" aria-live="polite">
+                </tbody>
+            </table>
 
             <template id="file-row">
-                <li class="file-list__item">
-                    {{ icon('file', 'file-list__icon') }}
-                    <span class="file-list__name"></span>
-                    <span class="file-list__size"></span>
-                </li>
+                <tr>
+                    <td class="file-table__name"></td>
+                    <td class="table__num file-table__size"></td>
+                </tr>
             </template>
         </fieldset>
 
         <div class="meter" id="upload-progress" hidden>
-            <div class="meter__head">
-                <span id="upload-progress-label">Uploading</span>
-            </div>
+            <p class="meter__label" id="upload-progress-label">Uploading</p>
             <div class="meter__track">
                 <div class="meter__fill" id="upload-progress-fill"></div>
             </div>
         </div>
 
-        <div class="form__actions form__actions--end">
-            <button type="submit" class="button" id="submit-btn" disabled>Continue {{ icon("arrow-right") }}</button>
+        <div class="form__actions">
+            <button type="submit" class="btn" id="submit-btn" disabled>Continue</button>
         </div>
     </form>
 
@@ -102,12 +104,13 @@
                 list.innerHTML = '';
                 files.forEach(function(f) {
                     var li = rowTemplate.content.firstElementChild.cloneNode(true);
-                    li.querySelector('.file-list__name').textContent = f.name;
-                    li.querySelector('.file-list__size').textContent = fmt(f.size);
+                    li.querySelector('.file-table__name').textContent = f.name;
+                    li.querySelector('.file-table__size').textContent = fmt(f.size);
                     list.appendChild(li);
                 });
 
                 btn.disabled = !hasFiles;
+                document.getElementById('file-table').hidden = !hasFiles;
 
                 if (hasFiles) {
                     primary.textContent = files.length === 1 ? '1 file selected' : files.length + ' files selected';

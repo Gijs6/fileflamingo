@@ -1,28 +1,26 @@
 {% extends "site_base.jinja" %}
 
-{% from "_macros.jinja" import icon, steps %}
+{% from "_macros.jinja" import steps %}
 
 {% block title %}Options{% endblock %}
 
 {% block content %}
     <div class="page-head">
-        <div>
-            <h1>Options</h1>
-            <p class="lead">Choose how long the link stays active.</p>
-        </div>
+        <h1>Options</h1>
     </div>
+
+    <p class="lead">Choose how long the link stays active.</p>
 
     {{ steps(3) }}
 
-    <form class="form"
-          method="post"
+    <form method="post"
           action="{{ url_for('transfers.configure', transfer_id=transfer.id) }}"
           hx-patch="{{ url_for('transfers.configure', transfer_id=transfer.id) }}">
         <input type="hidden" name="_method" value="PATCH" />
 
-        <div class="field">
+        <div class="field field--narrow">
             <label class="field__label" for="expiry">Link expires after</label>
-            <select class="field__control" name="expiry" id="expiry">
+            <select name="expiry" id="expiry">
                 <option value="1">1 day</option>
                 <option value="7" selected>7 days</option>
                 <option value="30">30 days</option>
@@ -30,10 +28,10 @@
             </select>
         </div>
 
-        <div class="form__actions form__actions--split">
+        <div class="form__actions">
             <a href="{{ url_for('transfers.message', transfer_id=transfer.id) }}"
-               class="button button--ghost">{{ icon("arrow-left") }} Back</a>
-            <button type="submit" class="button">{{ icon("link") }} Create link</button>
+               class="btn">Back</a>
+            <button type="submit" class="btn">Create link</button>
         </div>
     </form>
 {% endblock %}
