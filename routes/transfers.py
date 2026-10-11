@@ -136,6 +136,8 @@ def view(transfer_id):
     transfer = db.session.get(Transfer, transfer_id)
     if transfer is None or transfer.status != "ready":
         abort(404)
+    if transfer.is_expired:
+        abort(410)
     return render_template("transfers/view.jinja", transfer=transfer)
 
 

@@ -3,67 +3,57 @@
 {% block title %}Download files{% endblock %}
 
 {% block content %}
-    {% if transfer.is_expired %}
-        <div class="page-head">
-            <h1>Transfer expired</h1>
-        </div>
-        <p class="lead">The files are no longer available.</p>
-        <div class="form__actions">
-            <a href="{{ url_for('transfers.index') }}" class="btn">Share your own files</a>
-        </div>
-    {% else %}
-        {% set file_count = transfer.files | length %}
-        <div class="page-head">
-            <h1>{{ file_count }} {{ "file" if file_count == 1 else "files" }}</h1>
-        </div>
+    {% set file_count = transfer.files | length %}
+    <div class="page-head">
+        <h1>{{ file_count }} {{ "file" if file_count == 1 else "files" }}</h1>
+    </div>
 
-        <p class="lead">
-            Shared
-            <time datetime="{{ transfer.created_at.isoformat() }}">{{ transfer.created_at | strftime }}</time>
-            {%- if transfer.expires_at %}, expires {{ transfer.expires_at | strftime }}{% endif %}
-        </p>
+    <p class="lead">
+        Shared
+        <time datetime="{{ transfer.created_at.isoformat() }}">{{ transfer.created_at | strftime }}</time>
+        {%- if transfer.expires_at %}, expires {{ transfer.expires_at | strftime }}{% endif %}
+    </p>
 
-        {% if transfer.message %}
-            <blockquote class="transfer-message">{{ transfer.message }}</blockquote>
-        {% endif %}
-
-        <div class="table-wrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">File</th>
-                        <th scope="col" class="table__num">Size</th>
-                        <th scope="col" class="table__actions">
-                            <span class="visually-hidden">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for f in transfer.files %}
-                        <tr>
-                            <td class="file-table__name">{{ f.filename }}</td>
-                            <td class="table__num">{{ f.size | filesize }}</td>
-                            <td class="table__actions">
-                                <a href="{{ url_for('transfers.download_file', transfer_id=transfer.id, file_id=f.id) }}"
-                                   class="btn btn--sm"
-                                   download>Download</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-                {% if file_count > 1 %}
-                    <tfoot>
-                        <tr>
-                            <th scope="row">Total</th>
-                            <td class="table__num">{{ transfer.total_size | filesize }}</td>
-                            <td class="table__actions">
-                                <a href="{{ url_for('transfers.download_archive', transfer_id=transfer.id) }}"
-                                   class="btn btn--sm">Download all as zip</a>
-                            </td>
-                        </tr>
-                    </tfoot>
-                {% endif %}
-            </table>
-        </div>
+    {% if transfer.message %}
+        <blockquote class="transfer-message">{{ transfer.message }}</blockquote>
     {% endif %}
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">File</th>
+                    <th scope="col" class="table__num">Size</th>
+                    <th scope="col" class="table__actions">
+                        <span class="visually-hidden">Actions</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in transfer.files %}
+                    <tr>
+                        <td class="file-table__name">{{ f.filename }}</td>
+                        <td class="table__num">{{ f.size | filesize }}</td>
+                        <td class="table__actions">
+                            <a href="{{ url_for('transfers.download_file', transfer_id=transfer.id, file_id=f.id) }}"
+                               class="btn btn--sm"
+                               download>Download</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            {% if file_count > 1 %}
+                <tfoot>
+                    <tr>
+                        <th scope="row">Total</th>
+                        <td class="table__num">{{ transfer.total_size | filesize }}</td>
+                        <td class="table__actions">
+                            <a href="{{ url_for('transfers.download_archive', transfer_id=transfer.id) }}"
+                               class="btn btn--sm">Download all as zip</a>
+                        </td>
+                    </tr>
+                </tfoot>
+            {% endif %}
+        </table>
+    </div>
 {% endblock %}
