@@ -1,5 +1,7 @@
 {% extends "site_base.jinja" %}
 
+{% from "_macros.jinja" import when %}
+
 {% block title %}Download files{% endblock %}
 
 {% block content %}
@@ -10,8 +12,8 @@
 
     <p class="lead">
         Shared
-        <time datetime="{{ transfer.created_at.isoformat() }}">{{ transfer.created_at | strftime }}</time>
-        {%- if transfer.expires_at %}, expires {{ transfer.expires_at | strftime }}{% endif %}
+        {{ when(transfer.created_at) }}
+        {%- if transfer.expires_at %}, expires {{ when(transfer.expires_at) }}{% endif %}
     </p>
 
     {% if transfer.message %}

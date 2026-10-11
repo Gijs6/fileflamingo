@@ -7,3 +7,9 @@
         {% endfor %}
     </ol>
 {%- endmacro %}
+
+{# djlint:off #}
+{% macro when(value) -%}
+    <time datetime="{{ value | to_iso }}" data-local>{{ value | strftime }} UTC</time>
+{%- endmacro %}
+{# djlint:on #}

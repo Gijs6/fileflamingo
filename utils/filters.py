@@ -16,6 +16,13 @@ def strftime_filter(value, fmt="%-d %b %Y, %H:%M"):
     return value.strftime(fmt)
 
 
+def to_iso_filter(value):
+    value = ensure_tz(value)
+    if value is None:
+        return ""
+    return value.isoformat()
+
+
 def filesize_filter(value):
     if value is None:
         return "-"
@@ -30,6 +37,7 @@ def filesize_filter(value):
 
 FILTERS = {
     "strftime": strftime_filter,
+    "to_iso": to_iso_filter,
     "filesize": filesize_filter,
 }
 

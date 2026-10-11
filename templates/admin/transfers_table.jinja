@@ -1,5 +1,7 @@
+{% from "_macros.jinja" import when %}
 <div class="table-wrap">
-    <table class="table table--kv" aria-label="Summary">
+    <table class="table table--kv">
+        <caption class="visually-hidden">Summary</caption>
         <tbody>
             <tr>
                 <th scope="row">Transfers</th>
@@ -51,14 +53,14 @@
                         <td class="table__num">{{ transfer.total_size | filesize }}</td>
                         <td class="table__num">{{ transfer.download_count }}</td>
                         <td>
-                            <time datetime="{{ transfer.created_at.isoformat() }}">{{ transfer.created_at | strftime }}</time>
+                            {{ when(transfer.created_at) }}
                         </td>
                         <td>
                             {% if transfer.expires_at %}
                                 {% if transfer.is_expired %}
                                     <span class="status status--warn">Expired</span>
                                 {% else %}
-                                    {{ transfer.expires_at | strftime }}
+                                    {{ when(transfer.expires_at) }}
                                 {% endif %}
                             {% elif transfer.status == "pending" %}
                                 <span class="status">Pending</span>
