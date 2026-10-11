@@ -30,7 +30,10 @@ def do_login():
     password = request.form.get("password", "")
     stored_hash = os.getenv("PASSWORD_HASH", "")
 
-    if stored_hash and check_password_hash(stored_hash, password):
+    if current_app.debug or (
+        stored_hash and check_password_hash(stored_hash, password)
+    ):
+        session.clear()
         session["admin"] = True
         return redirect(url_for("admin.dashboard"))
 
@@ -42,6 +45,8 @@ def do_login():
 @admin_required
 def logout():
     session.clear()
+    if current_app.debug:
+        session["dev_signed_out"] = True
     return redirect(url_for("admin.login"))
 
 
@@ -88,5 +93,6 @@ def delete_transfer(transfer_id):
 
     db.session.delete(transfer)
     db.session.commit()
+    flash(f"Deleted transfer {transfer_id}.", "success")
 
     return "", 200

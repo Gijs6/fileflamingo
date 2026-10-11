@@ -1,12 +1,14 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from models import db
 from routes import register_routes
 from utils.filters import register_filters
+from utils.toasts import register_toasts
+from utils.version import register_version
 
 load_dotenv(override=True)
 
@@ -22,12 +24,20 @@ app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_MB", "2048")) * 102
 db.init_app(app)
 register_filters(app)
 register_routes(app)
+register_toasts(app)
+register_version(app, "bird")
 
 os.makedirs(app.instance_path, exist_ok=True)
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 with app.app_context():
     db.create_all()
+
+
+@app.before_request
+def dev_sign_in():
+    if app.debug and not session.get("admin") and not session.get("dev_signed_out"):
+        session["admin"] = True
 
 
 @app.before_request
