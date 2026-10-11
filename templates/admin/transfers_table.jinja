@@ -73,7 +73,7 @@
                             <button type="button"
                                     class="btn btn--danger btn--sm"
                                     hx-delete="{{ url_for('admin.delete_transfer', transfer_id=transfer.id) }}"
-                                    hx-confirm="Delete this transfer and all its files?"
+                                    hx-confirm="Delete transfer {{ transfer.id }} and its files?"
                                     hx-target="closest tr"
                                     hx-swap="outerHTML"
                                     hx-on::after-request="htmx.trigger('body', 'transfers-changed')">Delete</button>
