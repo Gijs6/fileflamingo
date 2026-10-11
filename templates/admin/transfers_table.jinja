@@ -39,7 +39,8 @@
                         <td>
                             {% if transfer.status == "ready" %}
                                 <a href="{{ url_for('transfers.view', transfer_id=transfer.id) }}"
-                                   target="_blank"><code>{{ transfer.id }}</code></a>
+                                   target="_blank"
+                                   rel="noopener noreferrer"><code>{{ transfer.id }}</code></a>
                             {% else %}
                                 <code>{{ transfer.id }}</code>
                             {% endif %}
