@@ -22,28 +22,30 @@
         <button type="button" class="btn" id="copy-btn">Copy link</button>
     </div>
 
-    <table class="table table--kv">
-        <tbody>
-            <tr>
-                <th scope="row">Files</th>
-                <td>{{ transfer.files | length }}</td>
-            </tr>
-            <tr>
-                <th scope="row">Size</th>
-                <td>{{ transfer.total_size | filesize }}</td>
-            </tr>
-            <tr>
-                <th scope="row">Expires</th>
-                <td>
-                    {% if transfer.expires_at %}
-                        {{ transfer.expires_at | strftime }}
-                    {% else %}
-                        Never
-                    {% endif %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-wrap">
+        <table class="table table--kv">
+            <tbody>
+                <tr>
+                    <th scope="row">Files</th>
+                    <td>{{ transfer.files | length }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Size</th>
+                    <td>{{ transfer.total_size | filesize }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Expires</th>
+                    <td>
+                        {% if transfer.expires_at %}
+                            {{ when(transfer.expires_at) }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <div class="form__actions">
         <a href="{{ url_for('transfers.index') }}" class="btn">Share more files</a>
