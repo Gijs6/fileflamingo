@@ -9,9 +9,9 @@
         <h1>Ready to share</h1>
     </div>
 
-    {% if transfer.recipient_email %}<p class="lead">Link sent to {{ transfer.recipient_email }}.</p>{% endif %}
-
     {{ steps(4) }}
+
+    {% if transfer.recipient_email %}<p class="lead">Link sent to {{ transfer.recipient_email }}.</p>{% endif %}
 
     <div class="input-row">
         <input type="text"
@@ -24,16 +24,13 @@
 
     <div class="table-wrap">
         <table class="table table--kv table--fit">
+            <caption class="visually-hidden">Details</caption>
             <tbody>
                 <tr>
                     <th scope="row">Files</th>
                     <td>{{ transfer.files | length }}</td>
-                </tr>
-                <tr>
                     <th scope="row">Size</th>
                     <td>{{ transfer.total_size | filesize }}</td>
-                </tr>
-                <tr>
                     <th scope="row">Expires</th>
                     <td>
                         {% if transfer.expires_at %}
@@ -69,10 +66,17 @@
             function fallback() {
                 urlInput.select();
                 urlInput.setSelectionRange(0, 99999);
+                var ok = false;
                 try {
-                    document.execCommand('copy');
+                    ok = document.execCommand('copy');
                 } catch (_) {}
-                onCopied();
+                if (ok) {
+                    onCopied();
+                } else {
+                    window.toast("Couldn't copy the link. Copy it from the field instead.", {
+                        type: 'danger'
+                    });
+                }
             }
 
             function onCopied() {

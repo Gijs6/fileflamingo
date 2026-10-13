@@ -3,7 +3,7 @@
 {% block body_content %}
     <header class="navbar">
         <div class="navbar__inner">
-            <a href="{{ url_for('admin.dashboard') }}" class="navbar__brand">{% include "mark.svg" %}FileFlamingo</a>
+            <a href="{{ url_for('transfers.index') }}" class="navbar__brand">{% include "mark.svg" %}FileFlamingo</a>
             <nav class="navbar__links" aria-label="Main">
                 <a href="{{ url_for('admin.dashboard') }}"
                    {% if request.blueprint == "admin" %}aria-current="page"{% endif %}>Transfers</a>

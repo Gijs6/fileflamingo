@@ -12,7 +12,7 @@ def ensure_tz(dt):
 def strftime_filter(value, fmt="%-d %b %Y, %H:%M"):
     value = ensure_tz(value)
     if value is None:
-        return "-"
+        return ""
     return value.strftime(fmt)
 
 
@@ -25,7 +25,7 @@ def to_iso_filter(value):
 
 def filesize_filter(value):
     if value is None:
-        return "-"
+        return ""
     if value < 1024:
         return f"{value} B"
     if value < 1024 * 1024:
