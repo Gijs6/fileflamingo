@@ -10,11 +10,18 @@
         <h1>{{ file_count }} {{ "file" if file_count == 1 else "files" }}</h1>
     </div>
 
-    <p class="lead">
-        Shared
-        {{ when(transfer.created_at) }}
-        {%- if transfer.expires_at %}, expires {{ when(transfer.expires_at) }}{% endif %}
-    </p>
+    <div class="table-wrap">
+        <table class="table table--kv table--fit">
+            <caption class="visually-hidden">Details</caption>
+            <tbody>
+                <tr>
+                    <th scope="row">Shared</th>
+                    <td>{{ when(transfer.created_at) }}</td>
+                    {% if transfer.expires_at %}<th scope="row">Expires</th><td>{{ when(transfer.expires_at) }}</td>{% endif %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     {% if transfer.message %}
         <blockquote class="transfer-message">{{ transfer.message }}</blockquote>

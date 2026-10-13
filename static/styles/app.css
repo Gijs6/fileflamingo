@@ -6,15 +6,21 @@
 .steps {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-xl);
+    inline-size: fit-content;
+    max-inline-size: 100%;
     margin: 0 0 var(--space-2xl);
-    padding: var(--space-sm) 0;
+    padding: 0;
     list-style: none;
-    border-block: 1px solid var(--rule);
+    border: 1px solid var(--rule);
 }
 
 .steps__item {
+    padding: var(--space-xs) var(--space-sm);
     color: var(--muted);
+
+    & + & {
+        border-inline-start: 1px solid var(--line);
+    }
 }
 
 .steps__item--done {
@@ -53,7 +59,7 @@
     }
     &:hover,
     &.is-dragover {
-        background: var(--head);
+        background: var(--btn-hover);
         border-color: var(--link);
     }
     &:focus-within {
@@ -98,19 +104,6 @@
 }
 
 .transfer-message {
-    margin: 0 0 var(--space-2xl);
-    padding: var(--space-sm) var(--space-lg);
+    margin-block-end: var(--space-2xl);
     white-space: pre-line;
-    border-inline-start: 3px solid var(--rule);
-}
-
-.table tfoot th,
-.table tfoot td {
-    font-weight: 700;
-    border-top: 1px solid var(--rule);
-}
-
-.transfer-row--expired,
-.transfer-row--pending {
-    color: var(--muted);
 }
