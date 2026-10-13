@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, session
+from flask import Flask, flash, render_template, request, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from models import db
@@ -70,6 +70,12 @@ def gone(_e):
 
 @app.errorhandler(413)
 def too_large(_e):
+    if request.headers.get("HX-Request"):
+        flash(
+            f"The upload is larger than the server allows ({app.config['MAX_CONTENT_LENGTH'] // 1024 // 1024:,} MB). Try fewer or smaller files.",
+            "error",
+        )
+        return "", 413
     return render_template(
         "error.jinja",
         code=413,
