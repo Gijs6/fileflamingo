@@ -57,13 +57,19 @@
         </div>
 
         <div class="form__actions">
-            <a href="{{ url_for('transfers.index') }}" class="btn">Back</a>
+            <button type="submit" form="cancel-transfer" class="btn">Cancel</button>
             <button type="submit" class="btn" id="continue-btn" hidden>Continue</button>
             <a href="{{ url_for('transfers.details', transfer_id=transfer.id) }}"
                class="btn"
                id="skip-btn">Skip</a>
         </div>
     </form>
+
+    <form id="cancel-transfer"
+          method="post"
+          action="{{ url_for('transfers.cancel', transfer_id=transfer.id) }}"
+          data-confirm="Cancel this upload? The uploaded files are deleted."
+          data-confirm-action="Cancel upload"></form>
 
     <script>
         (function() {

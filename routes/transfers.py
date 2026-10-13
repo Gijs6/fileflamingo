@@ -21,6 +21,7 @@ from werkzeug.utils import secure_filename
 
 from models import Transfer, TransferFile, db
 from utils.mail import send_transfer_email
+from utils.transfers import delete_transfer
 
 transfers_bp = Blueprint("transfers", __name__)
 
@@ -43,6 +44,8 @@ def create():
     files = [f for f in request.files.getlist("files[]") if f.filename]
     if not files:
         flash("Select at least one file.", "error")
+        if request.headers.get("HX-Request"):
+            return "", 400
         return redirect(url_for("transfers.index"))
 
     transfer = Transfer(status="pending")
@@ -88,6 +91,16 @@ def save_message(transfer_id):
     db.session.commit()
 
     return _htmx_redirect(url_for("transfers.details", transfer_id=transfer.id))
+
+
+@transfers_bp.post("/transfers/<transfer_id>/cancel")
+def cancel(transfer_id):
+    transfer = db.session.get(Transfer, transfer_id)
+    if transfer is None or transfer.status != "pending":
+        abort(404)
+    delete_transfer(transfer)
+    flash("Upload cancelled.", "success")
+    return redirect(url_for("transfers.index"), code=303)
 
 
 @transfers_bp.get("/transfers/<transfer_id>/details")

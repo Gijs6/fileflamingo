@@ -14,6 +14,7 @@ from werkzeug.security import check_password_hash
 
 from models import Transfer, db
 from utils.auth import admin_required, is_admin
+from utils.transfers import delete_transfer as delete_transfer_files
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -94,14 +95,7 @@ def delete_transfer(transfer_id):
     if transfer is None:
         return "", 404
 
-    folder = current_app.config["UPLOAD_FOLDER"]
-    for f in transfer.files:
-        path = os.path.join(folder, f.stored_name)
-        if os.path.exists(path):
-            os.remove(path)
-
-    db.session.delete(transfer)
-    db.session.commit()
+    delete_transfer_files(transfer)
     flash(f"Deleted transfer {transfer_id}.", "success")
 
     return "", 200
