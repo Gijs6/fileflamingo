@@ -50,32 +50,41 @@ def logout():
     return redirect(url_for("admin.login"))
 
 
+def transfers_context():
+    transfers = Transfer.query.order_by(Transfer.created_at.desc()).all()
+    expired = [t for t in transfers if t.is_expired]
+    pending = [t for t in transfers if not t.is_expired and t.status == "pending"]
+    active = [t for t in transfers if not t.is_expired and t.status != "pending"]
+    active.sort(key=lambda t: (t.expires_at is None, t.expires_at or t.created_at))
+    expired.sort(key=lambda t: t.expires_at, reverse=True)
+    sections = [
+        (label, items)
+        for label, items in (
+            ("Active", active),
+            ("Pending", pending),
+            ("Expired", expired),
+        )
+        if items
+    ]
+    return {
+        "transfers": transfers,
+        "sections": sections,
+        "expired_count": len(expired),
+        "total_size": sum(t.total_size for t in transfers),
+        "total_files": sum(len(t.files) for t in transfers),
+    }
+
+
 @admin_bp.get("/")
 @admin_required
 def dashboard():
-    transfers = Transfer.query.order_by(Transfer.created_at.desc()).all()
-    total_size = sum(t.total_size for t in transfers)
-    total_files = sum(len(t.files) for t in transfers)
-    return render_template(
-        "admin/dashboard.jinja",
-        transfers=transfers,
-        total_size=total_size,
-        total_files=total_files,
-    )
+    return render_template("admin/dashboard.jinja", **transfers_context())
 
 
 @admin_bp.get("/transfers")
 @admin_required
 def transfers_table():
-    transfers = Transfer.query.order_by(Transfer.created_at.desc()).all()
-    total_size = sum(t.total_size for t in transfers)
-    total_files = sum(len(t.files) for t in transfers)
-    return render_template(
-        "admin/transfers_table.jinja",
-        transfers=transfers,
-        total_size=total_size,
-        total_files=total_files,
-    )
+    return render_template("admin/transfers_table.jinja", **transfers_context())
 
 
 @admin_bp.delete("/transfers/<transfer_id>")

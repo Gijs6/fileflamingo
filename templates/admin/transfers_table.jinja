@@ -1,6 +1,6 @@
 {% from "_macros.jinja" import when %}
 <div class="table-wrap">
-    <table class="table table--kv">
+    <table class="table table--kv table--fit">
         <caption class="visually-hidden">Summary</caption>
         <tbody>
             <tr>
@@ -11,7 +11,7 @@
                 <th scope="row">Storage</th>
                 <td>{{ total_size | filesize }}</td>
                 <th scope="row">Expired</th>
-                <td>{{ transfers | selectattr("is_expired") | list | length }}</td>
+                <td>{{ expired_count }}</td>
             </tr>
         </tbody>
     </table>
@@ -34,52 +34,51 @@
                 </tr>
             </thead>
             <tbody>
-                {% for transfer in transfers %}
-                    <tr class="{% if transfer.is_expired %}transfer-row--expired{% elif transfer.status == 'pending' %}transfer-row--pending{% endif %}">
-                        <td>
-                            {% if transfer.status == "ready" %}
-                                <a href="{{ url_for('transfers.view', transfer_id=transfer.id) }}"
-                                   target="_blank"
-                                   rel="noopener noreferrer"><code>{{ transfer.id }}</code></a>
-                            {% else %}
-                                <code>{{ transfer.id }}</code>
-                            {% endif %}
-                            {% if transfer.recipient_email %}
-                                <span class="muted tooltip"
-                                      tabindex="0"
-                                      data-tooltip="Sent to {{ transfer.recipient_email }}">(emailed)</span>
-                            {% endif %}
-                        </td>
-                        <td class="table__num">{{ transfer.files | length }}</td>
-                        <td class="table__num">{{ transfer.total_size | filesize }}</td>
-                        <td class="table__num">{{ transfer.download_count }}</td>
-                        <td>
-                            {{ when(transfer.created_at) }}
-                        </td>
-                        <td>
-                            {% if transfer.expires_at %}
-                                {% if transfer.is_expired %}
-                                    <span class="status status--warn">Expired</span>
-                                {% else %}
-                                    {{ when(transfer.expires_at) }}
-                                {% endif %}
-                            {% elif transfer.status == "pending" %}
-                                <span class="status">Pending</span>
-                            {% else %}
-                                <span class="muted">Never</span>
-                            {% endif %}
-                        </td>
-                        <td class="table__actions">
-                            <button type="button"
-                                    class="btn btn--danger btn--sm"
-                                    hx-delete="{{ url_for('admin.delete_transfer', transfer_id=transfer.id) }}"
-                                    hx-confirm="Delete transfer {{ transfer.id }}? Its files are deleted too."
-                                    data-confirm-action="Delete transfer"
-                                    hx-target="closest tr"
-                                    hx-swap="outerHTML"
-                                    hx-on::after-request="htmx.trigger('body', 'transfers-changed')">Delete</button>
-                        </td>
+                {% for label, items in sections %}
+                    <tr class="table__group">
+                        <th colspan="7" scope="colgroup">
+                            {{ label }} <span class="count">{{ "{:,}".format(items | length) }}</span>
+                        </th>
                     </tr>
+                    {% for transfer in items %}
+                        <tr>
+                            <td>
+                                {% if transfer.status == "ready" and not transfer.is_expired %}
+                                    <a href="{{ url_for('transfers.view', transfer_id=transfer.id) }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer"><code>{{ transfer.id }}</code></a>
+                                {% else %}
+                                    <code>{{ transfer.id }}</code>
+                                {% endif %}
+                                {% if transfer.recipient_email %}
+                                    <span class="status tooltip"
+                                          tabindex="0"
+                                          data-tooltip="Sent to {{ transfer.recipient_email }}">(emailed)</span>
+                                {% endif %}
+                            </td>
+                            <td class="table__num">{{ transfer.files | length }}</td>
+                            <td class="table__num">{{ transfer.total_size | filesize }}</td>
+                            <td class="table__num">{{ transfer.download_count }}</td>
+                            <td>{{ when(transfer.created_at) }}</td>
+                            <td>
+                                {% if transfer.expires_at %}
+                                    {{ when(transfer.expires_at) }}
+                                {% elif transfer.status != "pending" %}
+                                    Never
+                                {% endif %}
+                            </td>
+                            <td class="table__actions">
+                                <button type="button"
+                                        class="btn btn--danger btn--sm"
+                                        hx-delete="{{ url_for('admin.delete_transfer', transfer_id=transfer.id) }}"
+                                        hx-confirm="Delete transfer {{ transfer.id }}? Its files are deleted too."
+                                        data-confirm-action="Delete transfer"
+                                        hx-target="closest tr"
+                                        hx-swap="outerHTML"
+                                        hx-on::after-request="htmx.trigger('body', 'transfers-changed')">Delete</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
