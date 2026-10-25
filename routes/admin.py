@@ -1,12 +1,14 @@
-from flask import Blueprint, flash, render_template
+from flask import Blueprint, flash, make_response, render_template
 
 from models import Transfer, db
 from utils.transfers import delete_transfer as delete_transfer_files
+from utils.transfers import prune
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
 def transfers_context():
+    prune()
     transfers = Transfer.query.order_by(Transfer.created_at.desc()).all()
     expired = [t for t in transfers if t.is_expired]
     pending = [t for t in transfers if not t.is_expired and t.status == "pending"]
@@ -50,4 +52,6 @@ def delete_transfer(transfer_id):
     delete_transfer_files(transfer)
     flash(f"Deleted transfer {transfer_id}.", "success")
 
-    return "", 200
+    response = make_response("", 200)
+    response.headers["HX-Trigger"] = "transfers-changed"
+    return response

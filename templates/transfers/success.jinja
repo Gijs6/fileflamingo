@@ -11,8 +11,6 @@
 
     {{ steps(4) }}
 
-    {% if transfer.recipient_email %}<p class="lead">Link sent to {{ transfer.recipient_email }}.</p>{% endif %}
-
     <div class="input-row">
         <input type="text"
                id="link-url"
@@ -48,44 +46,5 @@
         <a href="{{ url_for('transfers.index') }}" class="btn">Share more files</a>
     </div>
 
-    <script>
-        (function() {
-            const btn = document.getElementById('copy-btn');
-            const urlInput = document.getElementById('link-url');
-            if (!btn || !urlInput) return;
-
-            function copy() {
-                const text = urlInput.value;
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(text).then(onCopied).catch(fallback);
-                } else {
-                    fallback();
-                }
-            }
-
-            function fallback() {
-                urlInput.select();
-                urlInput.setSelectionRange(0, 99999);
-                var ok = false;
-                try {
-                    ok = document.execCommand('copy');
-                } catch (_) {}
-                if (ok) {
-                    onCopied();
-                } else {
-                    window.toast("Couldn't copy the link. Copy it from the field instead.", {
-                        type: 'danger'
-                    });
-                }
-            }
-
-            function onCopied() {
-                window.toast('Link copied.', {
-                    type: 'success'
-                });
-            }
-
-            btn.addEventListener('click', copy);
-        })();
-    </script>
+    <script src="{{ url_for('static', filename='scripts/copy-link.js') }}"></script>
 {% endblock %}

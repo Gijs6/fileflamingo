@@ -42,6 +42,14 @@ class Transfer(db.Model):
         return sum(f.size for f in self.files)
 
 
+class Upload(db.Model):
+    __tablename__ = "uploads"
+
+    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.String(64), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False, index=True)
+
+
 class TransferFile(db.Model):
     __tablename__ = "transfer_files"
 

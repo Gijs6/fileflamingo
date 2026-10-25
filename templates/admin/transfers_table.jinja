@@ -50,11 +50,6 @@
                                 {% else %}
                                     <code>{{ transfer.id }}</code>
                                 {% endif %}
-                                {% if transfer.recipient_email %}
-                                    <span class="status tooltip"
-                                          tabindex="0"
-                                          data-tooltip="Sent to {{ transfer.recipient_email }}">(emailed)</span>
-                                {% endif %}
                             </td>
                             <td class="table__num">{{ transfer.files | length }}</td>
                             <td class="table__num">{{ transfer.total_size | filesize }}</td>
@@ -74,8 +69,7 @@
                                         hx-confirm="Delete transfer {{ transfer.id }}? Its files are deleted too."
                                         data-confirm-action="Delete transfer"
                                         hx-target="closest tr"
-                                        hx-swap="outerHTML"
-                                        hx-on::after-request="htmx.trigger('body', 'transfers-changed')">Delete</button>
+                                        hx-swap="outerHTML">Delete</button>
                             </td>
                         </tr>
                     {% endfor %}

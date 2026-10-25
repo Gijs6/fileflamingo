@@ -1,21 +1,26 @@
 import os
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
-from flask import Flask, flash, render_template, request, session
-from werkzeug.middleware.proxy_fix import ProxyFix
+from flask import Flask, abort, flash, render_template, request, session
 
 from models import db
 from routes import register_routes
 from utils.auth import init_auth
 from utils.errors import register_errors
 from utils.filters import register_filters
+from utils.headers import register_headers
+from utils.proxy import TrustedProxyFix
 from utils.toasts import register_toasts
 from utils.version import register_version
 
 load_dotenv(override=True)
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.jinja_env.autoescape = True
+app.wsgi_app = TrustedProxyFix(
+    app.wsgi_app, os.getenv("TRUSTED_PROXIES", "router").split(",")
+)
 
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(256).hex())
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_URI", "sqlite:///fileflamingo.db")
@@ -23,13 +28,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["UPLOAD_FOLDER"] = os.path.join(app.instance_path, "uploads")
-app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_MB", "2048")) * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_MB", "500")) * 1024 * 1024
 
 db.init_app(app)
 init_auth(app, home="admin.dashboard", scope="admin")
 register_filters(app)
 register_routes(app)
 register_toasts(app)
+register_headers(app)
 register_version(app, "bird")
 register_errors(
     app, "bird", user=lambda: "admin" if session.get("authenticated") else None
@@ -40,6 +46,17 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 with app.app_context():
     db.create_all()
+
+
+@app.before_request
+def guard():
+    if request.method not in ("GET", "HEAD", "OPTIONS"):
+        fetch_site = request.headers.get("Sec-Fetch-Site")
+        origin = request.headers.get("Origin")
+        if fetch_site and fetch_site not in ("same-origin", "none"):
+            abort(403)
+        if origin and origin != "null" and urlparse(origin).netloc != request.host:
+            abort(403)
 
 
 @app.before_request

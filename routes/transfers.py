@@ -19,11 +19,22 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-from models import Transfer, TransferFile, db, utcnow
-from utils.mail import send_transfer_email
-from utils.transfers import delete_transfer
+from models import Transfer, TransferFile, Upload, db, utcnow
+from utils.auth import is_logged_in
+from utils.transfers import delete_transfer, prune
 
 transfers_bp = Blueprint("transfers", __name__)
+
+UPLOADS_PER_DAY = 5
+STORAGE_QUOTA = int(os.getenv("STORAGE_QUOTA_GB", "20")) * 1024**3
+MAX_EXPIRY_DAYS = 7
+
+
+def _refuse(message, status):
+    flash(message, "error")
+    if request.headers.get("HX-Request"):
+        return "", status
+    return redirect(url_for("transfers.index"))
 
 
 def _htmx_redirect(dest):
@@ -41,6 +52,23 @@ def index():
 
 @transfers_bp.post("/transfers")
 def create():
+    prune()
+    if not is_logged_in():
+        since = utcnow() - timedelta(days=1)
+        uploads = Upload.query.filter(
+            Upload.ip == request.remote_addr, Upload.created_at > since
+        ).count()
+        if uploads >= UPLOADS_PER_DAY:
+            return _refuse(
+                f"You can upload {UPLOADS_PER_DAY} times a day. Try again tomorrow.",
+                429,
+            )
+    used = db.session.query(
+        db.func.coalesce(db.func.sum(TransferFile.size), 0)
+    ).scalar()
+    if used + (request.content_length or 0) > STORAGE_QUOTA:
+        return _refuse("FileFlamingo is full right now. Try again later.", 507)
+
     files = [f for f in request.files.getlist("files[]") if f.filename]
     if not files:
         flash("Select at least one file.", "error")
@@ -48,6 +76,7 @@ def create():
             return "", 400
         return redirect(url_for("transfers.index"))
 
+    db.session.add(Upload(ip=request.remote_addr or ""))
     transfer = Transfer(status="pending")
     db.session.add(transfer)
     db.session.flush()
@@ -87,7 +116,6 @@ def save_message(transfer_id):
         abort(404)
 
     transfer.message = request.form.get("message", "").strip() or None
-    transfer.recipient_email = request.form.get("email", "").strip() or None
     db.session.commit()
 
     return _htmx_redirect(url_for("transfers.details", transfer_id=transfer.id))
@@ -118,17 +146,15 @@ def configure(transfer_id):
         abort(404)
 
     try:
-        days = int(request.form.get("expiry", "7"))
+        days = int(request.form.get("expiry", MAX_EXPIRY_DAYS))
     except ValueError:
-        days = 7
+        days = MAX_EXPIRY_DAYS
+    if not 1 <= days <= MAX_EXPIRY_DAYS:
+        days = MAX_EXPIRY_DAYS
 
-    transfer.expires_at = utcnow() + timedelta(days=days) if days > 0 else None
+    transfer.expires_at = utcnow() + timedelta(days=days)
     transfer.status = "ready"
     db.session.commit()
-
-    download_url = url_for("transfers.view", transfer_id=transfer.id, _external=True)
-    if transfer.recipient_email:
-        send_transfer_email(transfer.recipient_email, download_url, transfer.message)
 
     return _htmx_redirect(url_for("transfers.success", transfer_id=transfer.id))
 
