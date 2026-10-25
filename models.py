@@ -1,6 +1,6 @@
 import secrets
 import string
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,6 +12,10 @@ def generate_id(length=8):
     return "".join(secrets.choice(chars) for _ in range(length))
 
 
+def utcnow():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
 class Transfer(db.Model):
     __tablename__ = "transfers"
 
@@ -21,7 +25,7 @@ class Transfer(db.Model):
     recipient_email = db.Column(db.String(255))
     expires_at = db.Column(db.DateTime)
     download_count = db.Column(db.Integer, default=0, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     files = db.relationship(
         "TransferFile", back_populates="transfer", cascade="all, delete-orphan"
@@ -31,7 +35,7 @@ class Transfer(db.Model):
     def is_expired(self):
         if self.expires_at is None:
             return False
-        return datetime.now() > self.expires_at
+        return utcnow() > self.expires_at
 
     @property
     def total_size(self):

@@ -10,6 +10,6 @@
 
 {# djlint:off #}
 {% macro when(value) -%}
-    <time datetime="{{ value | to_iso }}" data-local>{{ value | strftime }} UTC</time>
+    <time datetime="{{ value | to_iso }}">{{ value | strftime }}</time>
 {%- endmacro %}
 {# djlint:on #}

@@ -47,20 +47,5 @@
         {% block body_content %}{% endblock %}
 
         {% include "_footer.jinja" %}
-
-        <script>
-            const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-            function localTimes() {
-                const pad = (n) => String(n).padStart(2, '0');
-                document.querySelectorAll('time[data-local]').forEach(function(el) {
-                    const dt = new Date(el.getAttribute('datetime'));
-                    if (isNaN(dt)) return;
-                    el.textContent = dt.getDate() + ' ' + MONTHS[dt.getMonth()] + ' ' + dt.getFullYear() + ', ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
-                });
-            }
-            localTimes();
-            document.addEventListener('htmx:afterSettle', localTimes);
-        </script>
     </body>
 </html>

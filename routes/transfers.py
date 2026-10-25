@@ -3,7 +3,7 @@ import mimetypes
 import os
 import uuid
 import zipfile
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import (
     Blueprint,
@@ -19,7 +19,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-from models import Transfer, TransferFile, db
+from models import Transfer, TransferFile, db, utcnow
 from utils.mail import send_transfer_email
 from utils.transfers import delete_transfer
 
@@ -122,7 +122,7 @@ def configure(transfer_id):
     except ValueError:
         days = 7
 
-    transfer.expires_at = datetime.now() + timedelta(days=days) if days > 0 else None
+    transfer.expires_at = utcnow() + timedelta(days=days) if days > 0 else None
     transfer.status = "ready"
     db.session.commit()
 
