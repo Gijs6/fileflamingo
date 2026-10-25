@@ -8,9 +8,11 @@
                 <a href="{{ url_for('admin.dashboard') }}"
                    {% if request.blueprint == "admin" %}aria-current="page"{% endif %}>Transfers</a>
                 <a href="{{ url_for('transfers.index') }}">View site</a>
-                <form method="post" action="{{ url_for('admin.logout') }}">
-                    <button type="submit">Sign out</button>
-                </form>
+                {% if auth_provider == "password" %}
+                    <form method="post" action="{{ url_for('auth.logout') }}">
+                        <button type="submit">Sign out</button>
+                    </form>
+                {% endif %}
             </nav>
         </div>
     </header>

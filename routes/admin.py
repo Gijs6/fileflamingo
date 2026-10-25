@@ -1,54 +1,9 @@
-import os
-
-from flask import (
-    Blueprint,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
-)
-from werkzeug.security import check_password_hash
+from flask import Blueprint, flash, render_template
 
 from models import Transfer, db
-from utils.auth import admin_required, is_admin
 from utils.transfers import delete_transfer as delete_transfer_files
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
-
-
-@admin_bp.get("/login")
-def login():
-    if is_admin():
-        return redirect(url_for("admin.dashboard"))
-    return render_template("admin/login.jinja")
-
-
-@admin_bp.post("/login")
-def do_login():
-    password = request.form.get("password", "")
-    stored_hash = os.getenv("PASSWORD_HASH", "")
-
-    if current_app.debug or (
-        stored_hash and check_password_hash(stored_hash, password)
-    ):
-        session.clear()
-        session["admin"] = True
-        return redirect(url_for("admin.dashboard"))
-
-    flash("Incorrect password.", "error")
-    return redirect(url_for("admin.login"))
-
-
-@admin_bp.post("/logout")
-@admin_required
-def logout():
-    session.clear()
-    if current_app.debug:
-        session["dev_signed_out"] = True
-    return redirect(url_for("admin.login"))
 
 
 def transfers_context():
@@ -77,19 +32,16 @@ def transfers_context():
 
 
 @admin_bp.get("/")
-@admin_required
 def dashboard():
     return render_template("admin/dashboard.jinja", **transfers_context())
 
 
 @admin_bp.get("/transfers")
-@admin_required
 def transfers_table():
     return render_template("admin/transfers_table.jinja", **transfers_context())
 
 
 @admin_bp.delete("/transfers/<transfer_id>")
-@admin_required
 def delete_transfer(transfer_id):
     transfer = db.session.get(Transfer, transfer_id)
     if transfer is None:

@@ -6,6 +6,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from models import db
 from routes import register_routes
+from utils.auth import init_auth
+from utils.errors import register_errors
 from utils.filters import register_filters
 from utils.toasts import register_toasts
 from utils.version import register_version
@@ -18,26 +20,26 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(256).hex())
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_URI", "sqlite:///fileflamingo.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = True
 app.config["UPLOAD_FOLDER"] = os.path.join(app.instance_path, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_MB", "2048")) * 1024 * 1024
 
 db.init_app(app)
+init_auth(app, home="admin.dashboard", scope="admin")
 register_filters(app)
 register_routes(app)
 register_toasts(app)
 register_version(app, "bird")
+register_errors(
+    app, "bird", user=lambda: "admin" if session.get("authenticated") else None
+)
 
 os.makedirs(app.instance_path, exist_ok=True)
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 with app.app_context():
     db.create_all()
-
-
-@app.before_request
-def dev_sign_in():
-    if app.debug and not session.get("admin") and not session.get("dev_signed_out"):
-        session["admin"] = True
 
 
 @app.before_request
@@ -95,4 +97,5 @@ def server_error(_e):
 
 
 if __name__ == "__main__":
+    app.config["SESSION_COOKIE_SECURE"] = False
     app.run(host="0.0.0.0", port=4000, debug=True)
